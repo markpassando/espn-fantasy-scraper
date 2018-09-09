@@ -70,7 +70,6 @@ def getLeagueStandings ():
         # Assign it back to the team
         teams[current_team]["season_stats"] = current_season_stats
 
-      browser.quit()
       # print(titles)
   except TimeoutException:
       print("Timed out waiting for page to load")
@@ -78,17 +77,50 @@ def getLeagueStandings ():
 
 # Get Scores
 def getWeekScores ():
-  browser.switch_to.window('week')
-  browser.get("http://fantasy.espn.com/basketball/league/scoreboard?leagueId=6059")
+  browser.get("http://fantasy.espn.com/basketball/league/scoreboard?leagueId=6059&matchupPeriodId=1")
   try:
       WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
       teams_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__TeamName ScoreCell__TeamName--short truncate']")
+      cats_score_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__Score h4 clr-gray-01 fw-bold tar ScoreCell_Score--scoreboard pl2']")
       scores_elements = browser.find_elements_by_class_name('Table2__tbody')
       week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
-      print('here')
+
+      weeks = week_dropdown_selector.text.split('\n')
+
+      weeks_score = {}
+      scores = []
+
+      # Get Week's score for each team
+      for score in scores_elements:
+        all_scores = score.text.split('\n')
+        amount_of_cats = int(len(all_scores) / 2)
+        scores.append(all_scores[:amount_of_cats])
+        scores.append(all_scores[amount_of_cats:])
+
+      for i in range(len(teams_elements)):
+        team_name = teams_elements[i].text
+        team_number = i + 1
+        cats_score = cats_score_elements[i].text.split('-')
+
+        # Find opponent
+        if team_number % 2 == 0:
+          opponent = teams_elements[i - 1]
+        else:
+          opponent = teams_elements[i + 1]
+        
+        weeks_score[team_name] = {
+          "scores": scores[i],
+          "opponent": opponent.text,
+          "cats_won": int(cats_score[0]),
+          "cats_lost": int(cats_score[1]),
+          "cats_tied": int(cats_score[2])
+        }
+
+      print('done')
+      browser.quit()
   except TimeoutException:
       print("Timed out waiting for page to load")
       browser.quit()
 
-getLeagueStandings()
+# getLeagueStandings()
 getWeekScores()
