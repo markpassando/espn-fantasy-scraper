@@ -1,7 +1,7 @@
 import re
 from selenium import webdriver 
 from selenium.webdriver.common.by import By 
-from selenium.webdriver.support.ui import WebDriverWait 
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
@@ -82,42 +82,56 @@ def getWeekScores ():
   browser.get(f"{BASE_URL}scoreboard?leagueId=6059&matchupPeriodId=1")
   try:
       WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
-      teams_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__TeamName ScoreCell__TeamName--short truncate']")
-      cats_score_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__Score h4 clr-gray-01 fw-bold tar ScoreCell_Score--scoreboard pl2']")
-      scores_elements = browser.find_elements_by_class_name('Table2__tbody')
       week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
 
       weeks = week_dropdown_selector.text.split('\n')
+      amount_of_weeks = len(weeks)
 
-      weeks_score = {}
       scores = []
+      scoreboard = []
+      
+      for index, week in enumerate(weeks):
+        # Change Page to week
+        Select(week_dropdown_selector).select_by_visible_text(week)
+        week_number = index + 1
+        weeks_score = {}
+        teams_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__TeamName ScoreCell__TeamName--short truncate']")
+        cats_score_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__Score h4 clr-gray-01 fw-bold tar ScoreCell_Score--scoreboard pl2']")
+        scores_elements = browser.find_elements_by_class_name('Table2__tbody')
 
-      # Get Week's score for each team
-      for score in scores_elements:
-        all_scores = score.text.split('\n')
-        amount_of_cats = int(len(all_scores) / 2)
-        scores.append(all_scores[:amount_of_cats])
-        scores.append(all_scores[amount_of_cats:])
+        # Get Week's score for each team
+        for score in scores_elements:
+          all_scores = score.text.split('\n')
+          amount_of_cats = int(len(all_scores) / 2)
+          scores.append(all_scores[:amount_of_cats])
+          scores.append(all_scores[amount_of_cats:])
 
-      for i in range(len(teams_elements)):
-        team_name = teams_elements[i].text
-        team_number = i + 1
-        cats_score = cats_score_elements[i].text.split('-')
+        for i in range(len(teams_elements)):
+          team_name = teams_elements[i].text
+          team_number = i + 1
 
-        # Find opponent
-        if team_number % 2 == 0:
-          opponent = teams_elements[i - 1]
-        else:
-          opponent = teams_elements[i + 1]
-        
-        # Build team dictionary
-        weeks_score[team_name] = {
-          "scores": scores[i],
-          "opponent": opponent.text,
-          "cats_won": int(cats_score[0]),
-          "cats_lost": int(cats_score[1]),
-          "cats_tied": int(cats_score[2])
-        }
+          if len(cats_score_elements) == 0:
+            # Week has not been played yet
+            cats_score = [0,0,0]
+          else:
+            cats_score = cats_score_elements[i].text.split('-')
+
+          # Find opponent
+          if team_number % 2 == 0:
+            opponent = teams_elements[i - 1]
+          else:
+            opponent = teams_elements[i + 1]
+          
+          # Build team dictionary
+          weeks_score[team_name] = {
+            "week": week_number,
+            "scores": scores[i],
+            "opponent": opponent.text,
+            "cats_won": int(cats_score[0]),
+            "cats_lost": int(cats_score[1]),
+            "cats_tied": int(cats_score[2])
+          }
+        scoreboard.append(weeks_score)
 
       print('done')
       browser.quit()
@@ -125,5 +139,5 @@ def getWeekScores ():
       print("Timed out waiting for page to load")
       browser.quit()
 
-getLeagueStandings()
+# getLeagueStandings()
 getWeekScores()
