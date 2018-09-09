@@ -8,6 +8,9 @@ from selenium.webdriver.common.keys import Keys
 user = ""
 pwd = ""
 
+BASE_URL = "http://fantasy.espn.com/basketball/league/"
+LEAGUE_ID = "6059"
+
 # Helpers TODO: put in utils.py
 def strip_special_chars(string):
   return re.sub('[^A-Za-z0-9]+', '', string)
@@ -15,7 +18,7 @@ def strip_special_chars(string):
 driver = webdriver.ChromeOptions()
 # driver.add_argument(" — incognito")
 browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
-browser.get("http://fantasy.espn.com/basketball/league/standings?leagueId=6059")
+browser.get(f"{BASE_URL}standings?leagueId=6059")
 timeout = 30
 
 def getLeagueStandings ():
@@ -28,7 +31,6 @@ def getLeagueStandings ():
 
       league_categories = header[4].text.split('\n')
       
-
       # Teams elements returns an array of values from 4 different tables
         # 1/4 - Team Standings
         # 2 - 4 ESPN is combining 3 columns of tables into one
@@ -77,7 +79,7 @@ def getLeagueStandings ():
 
 # Get Scores
 def getWeekScores ():
-  browser.get("http://fantasy.espn.com/basketball/league/scoreboard?leagueId=6059&matchupPeriodId=1")
+  browser.get(f"{BASE_URL}scoreboard?leagueId=6059&matchupPeriodId=1")
   try:
       WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
       teams_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__TeamName ScoreCell__TeamName--short truncate']")
@@ -108,6 +110,7 @@ def getWeekScores ():
         else:
           opponent = teams_elements[i + 1]
         
+        # Build team dictionary
         weeks_score[team_name] = {
           "scores": scores[i],
           "opponent": opponent.text,
@@ -122,5 +125,5 @@ def getWeekScores ():
       print("Timed out waiting for page to load")
       browser.quit()
 
-# getLeagueStandings()
+getLeagueStandings()
 getWeekScores()
