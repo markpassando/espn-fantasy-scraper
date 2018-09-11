@@ -1,11 +1,11 @@
 """
 Usage:
-  index.py [--id LEAGUE_ID] --username USERNAME --password PASSWORD
+  index.py [-i LEAGUE_ID] -u USERNAME -p PASSWORD
 
 Options:
-  --id=<leagueid>             ESPN League ID [default: 6059].
-  --username=<username>       ESPN Login Username.
-  --password=<password>       ESPN Login Password.
+  -i --id=<id>                   ESPN League ID [default: 6059].
+  -u --username=<username>       ESPN Login Username.
+  -p --password=<password>       ESPN Login Password.
 """
 import sys
 import re
