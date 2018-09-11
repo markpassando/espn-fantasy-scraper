@@ -1,3 +1,10 @@
+"""
+Usage:
+  index.py [--id LEAGUE_ID]
+
+Options:
+  --id=<leagueid>  This is the league ID [default: 6059].
+"""
 import sys
 import re
 from selenium import webdriver 
@@ -6,30 +13,36 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC 
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
+from docopt import docopt
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
+LEAGUE_ID = arguments['--id']
+print(LEAGUE_ID)
 
 # Conditionally Accept Terminal Arg
-AMOUNT_ARG_INDEXES = len(sys.argv) - 1
-if AMOUNT_ARG_INDEXES >= 1 and sys.argv[1]:
-  LEAGUE_ID = sys.argv[1]
-else:
-  LEAGUE_ID = "6059"
-  print(f"WARNING- LEAGUE_ID is required! It was set to {LEAGUE_ID} by default")
+# AMOUNT_ARG_INDEXES = len(sys.argv) - 1
+# if AMOUNT_ARG_INDEXES >= 1 and sys.argv[1]:
+#   LEAGUE_ID = sys.argv[1]
+# else:
+#   LEAGUE_ID = "6059"
+#   print(f"WARNING- LEAGUE_ID is required! It was set to {LEAGUE_ID} by default")
 
-if AMOUNT_ARG_INDEXES >= 2 and sys.argv[2]:
-  USERNAME = sys.argv[2]
-else:
-  USERNAME = ""
+# if AMOUNT_ARG_INDEXES >= 2 and sys.argv[2]:
+#   USERNAME = sys.argv[2]
+# else:
+#   USERNAME = ""
 
-if AMOUNT_ARG_INDEXES >= 3 and sys.argv[3]:
-  PASSWORD = sys.argv[3]
-else:
-  PASSWORD =  ""
+# if AMOUNT_ARG_INDEXES >= 3 and sys.argv[3]:
+#   PASSWORD = sys.argv[3]
+# else:
+#   PASSWORD =  ""
 
-print(f"LOG - LEAGUE_ID was set to '{LEAGUE_ID}''")
-print(f"LOG - USERNAME was set to '{USERNAME}''")
-print(f"LOG - PASSWORD was set to '{PASSWORD}''")
+# print(f"LOG - LEAGUE_ID was set to '{LEAGUE_ID}''")
+# print(f"LOG - USERNAME was set to '{USERNAME}''")
+# print(f"LOG - PASSWORD was set to '{PASSWORD}''")
 
 # Helpers TODO: put in utils.py
 def strip_special_chars(string):
