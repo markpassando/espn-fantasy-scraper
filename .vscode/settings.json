@@ -1,4 +1,3 @@
 {
-  "git.ignoreLimitWarning": true,
-  "python.pythonPath": "${workspaceFolder}/espn/bin/python"
+  "python.pythonPath": "${workspaceFolder}/env/bin/python"
 }
