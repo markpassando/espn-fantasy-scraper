@@ -5,16 +5,23 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Scraper",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/selenium/index.py",
+      "console": "integratedTerminal",
+      "args": [
+        "6059",
+        "--user=mark",
+        "--pw=foo"
+      ]
+    }
+    {
       "name": "Python: Current File (Integrated Terminal)",
       "type": "python",
       "request": "launch",
       "program": "${file}",
-      "console": "integratedTerminal",
-      "args": [
-        "6059",
-        "USERNAME",
-        "PASSWORD"
-      ],
+      "console": "integratedTerminal"
     },
     {
       "name": "Python: Attach",

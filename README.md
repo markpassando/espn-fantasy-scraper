@@ -16,12 +16,19 @@
 - Add auth to web app and allow users to save dashboard data.
 - Collect stats from each scraped league and allow users to compare against.
 
-## Phase 1: Installation and Usage (mac)
+## Installation and Usage (mac) - Phase 1: 
 Phase 1 is intended to work locally on a mac.
-- Download and install browser drivers
- - Chrome - https://sites.google.com/a/chromium.org/chromedriver/downloads
-- Place driver in /usr/local/bin
-- Create `virtualenv espn`
-- `pip install selenium`
-- Start virtualenv `workon espn`
-- Run with `python index.py`
+- **Pre-reqs for Python**
+  - Install virtualenv - `pip install virtualenv`
+- **Pre-reqs for Selenium**
+  - Download and install browser drivers, currently using Chrome for development, will soon support headless browser PhantomJS for speed.
+  - Chrome - https://sites.google.com/a/chromium.org/chromedriver/downloads
+  - Place driver in /usr/local/bin
+- **Create a Python env**
+  - Inside the root directory of this application.
+  - Create virtualenv - `python3 -m venv env`
+  - Activate the virtualenv - `source env/bin/activate`
+  - Install dependecies - `pip install -r requirements.txt`
+
+## Usage
+`python index.py vars`
