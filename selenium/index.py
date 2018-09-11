@@ -1,9 +1,11 @@
 """
 Usage:
-  index.py [--id LEAGUE_ID]
+  index.py [--id LEAGUE_ID] --username USERNAME --password PASSWORD
 
 Options:
-  --id=<leagueid>  This is the league ID [default: 6059].
+  --id=<leagueid>             ESPN League ID [default: 6059].
+  --username=<username>       ESPN Login Username.
+  --password=<password>       ESPN Login Password.
 """
 import sys
 import re
@@ -20,7 +22,10 @@ if __name__ == '__main__':
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
 LEAGUE_ID = arguments['--id']
+USERNAME = arguments['--username']
+PASSWORD = arguments['--password']
 print(LEAGUE_ID)
+print(USERNAME)
 
 # Conditionally Accept Terminal Arg
 # AMOUNT_ARG_INDEXES = len(sys.argv) - 1
