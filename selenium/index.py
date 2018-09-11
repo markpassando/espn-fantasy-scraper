@@ -1,6 +1,6 @@
 """
 Usage:
-  index.py -i LEAGUE_ID -u USERNAME -p PASSWORD
+  index.py [-i LEAGUE_ID] -u USERNAME -p PASSWORD
 
 Options:
   -i --id=<id>                   ESPN League ID [default: 6059].
