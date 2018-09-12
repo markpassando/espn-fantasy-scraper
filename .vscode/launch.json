@@ -11,9 +11,12 @@
       "program": "${workspaceFolder}/selenium/index.py",
       "console": "integratedTerminal",
       "args": [
+        "--league_id",
         "6059",
-        "--user=mark",
-        "--pw=foo"
+        "--username",
+        "foo",
+        "--password",
+        "bar"
       ]
     }
     {
