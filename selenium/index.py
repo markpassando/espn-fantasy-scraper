@@ -9,6 +9,10 @@ Options:
 """
 import sys
 import re
+import json
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import TerminalFormatter
 from selenium import webdriver 
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait, Select
@@ -24,34 +28,19 @@ BASE_URL = "http://fantasy.espn.com/basketball/league/"
 LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
 PASSWORD = arguments['--password']
-print(LEAGUE_ID)
-print(USERNAME)
 
-# Conditionally Accept Terminal Arg
-# AMOUNT_ARG_INDEXES = len(sys.argv) - 1
-# if AMOUNT_ARG_INDEXES >= 1 and sys.argv[1]:
-#   LEAGUE_ID = sys.argv[1]
-# else:
-#   LEAGUE_ID = "6059"
-#   print(f"WARNING- LEAGUE_ID is required! It was set to {LEAGUE_ID} by default")
-
-# if AMOUNT_ARG_INDEXES >= 2 and sys.argv[2]:
-#   USERNAME = sys.argv[2]
-# else:
-#   USERNAME = ""
-
-# if AMOUNT_ARG_INDEXES >= 3 and sys.argv[3]:
-#   PASSWORD = sys.argv[3]
-# else:
-#   PASSWORD =  ""
-
-# print(f"LOG - LEAGUE_ID was set to '{LEAGUE_ID}''")
-# print(f"LOG - USERNAME was set to '{USERNAME}''")
-# print(f"LOG - PASSWORD was set to '{PASSWORD}''")
+print('\n<---------------> espn-fantasy-scraper initializing <--------------->')
+print(f"LEAGUE_ID: '{LEAGUE_ID}''")
+print(f"USERNAME: '{USERNAME}''")
+print(f"PASSWORD: '{PASSWORD}''")
 
 # Helpers TODO: put in utils.py
 def strip_special_chars(string):
   return re.sub('[^A-Za-z0-9]+', '', string)
+
+def PygmentsPrint(dict_obj):
+  json_obj = json.dumps(dict_obj, sort_keys=True, indent=4)
+  print(highlight(json_obj, JsonLexer(), TerminalFormatter()))
 
 def checkIfAuthRequired():
   # Selenium throws NoSuchElementException if it can not find an element
@@ -73,7 +62,7 @@ def checkIfAuthRequired():
         email_input_element.send_keys(USERNAME)
         password_input_element.send_keys(PASSWORD)
         login_button_element.click()
-        print('LOG - User has successfully logged in!')
+        print(f"LOG - Successfully logged in for user '{USERNAME}'!")
         return True
       except Exception as e:
         print(f"ERROR - {e}")
@@ -138,7 +127,8 @@ def getLeagueStandings():
 
         # Assign it back to the team
         teams[current_team]["season_stats"] = current_season_stats
-
+      print('\n<---------------> League Standings and Season Stats <--------------->')
+      PygmentsPrint(teams)
   except TimeoutException:
       print("Timed out waiting for page to load")
       browser.quit()
@@ -199,7 +189,8 @@ def getWeekScores ():
           }
         scoreboard.append(weeks_score)
 
-      print('done')
+      print('\n<---------------> Scoreboard of Entire Season <--------------->')
+      PygmentsPrint(scoreboard)
       browser.quit()
   except TimeoutException:
       print("Timed out waiting for page to load")
