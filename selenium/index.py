@@ -151,19 +151,22 @@ def getWeekScores ():
   browser.get(f"{BASE_URL}scoreboard?leagueId={LEAGUE_ID}&matchupPeriodId=1")
   try:
       WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
-      week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
 
+      if checkIfAuthRequired():
+        browser.get(f"{BASE_URL}scoreboard?leagueId={LEAGUE_ID}&matchupPeriodId=1")
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Scoreboard']")))
+
+      week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
       weeks = week_dropdown_selector.text.split('\n')
       amount_of_weeks = len(weeks)
-
-      scores = []
-      scoreboard = []
+      scoreboard = {}
       
       for index, week in enumerate(weeks):
         # Change Page to week
         Select(week_dropdown_selector).select_by_visible_text(week)
         week_number = index + 1
         weeks_score = {}
+        scores = []
         teams_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__TeamName ScoreCell__TeamName--short truncate']")
         cats_score_elements = browser.find_elements_by_xpath("//div[@class='ScoreCell__Score h4 clr-gray-01 fw-bold tar ScoreCell_Score--scoreboard pl2']")
         scores_elements = browser.find_elements_by_class_name('Table2__tbody')
@@ -193,14 +196,19 @@ def getWeekScores ():
           
           # Build team dictionary
           weeks_score[team_name] = {
-            "week": week_number,
             "scores": scores[i],
             "opponent": opponent.text,
             "cats_won": int(cats_score[0]),
             "cats_lost": int(cats_score[1]),
             "cats_tied": int(cats_score[2])
           }
-        scoreboard.append(weeks_score)
+
+        # Add Data for an entire week
+        scoreboard[f"week{week_number}"] = {
+          "week": week_number,
+          "date": week,
+          "scores": weeks_score
+        }
 
       print('\n<---------------> Scoreboard of Entire Season <--------------->')
       PygmentsPrint(scoreboard)
@@ -209,5 +217,5 @@ def getWeekScores ():
       print("Timed out waiting for page to load")
       browser.quit()
 
-getLeagueStandings()
+# getLeagueStandings()
 getWeekScores()
