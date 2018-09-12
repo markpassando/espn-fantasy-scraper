@@ -1,11 +1,11 @@
 """
 Usage:
-  index.py [-i LEAGUE_ID] -u USERNAME -p PASSWORD
+  index.py [-i LEAGUE_ID -u USERNAME -p PASSWORD]
 
 Options:
-  -i --id=<id>                   ESPN League ID [default: 6059].
-  -u --username=<username>       ESPN Login Username.
-  -p --password=<password>       ESPN Login Password.
+  -i --league_id=<league_id>     ESPN League ID [default: 6059].
+  -u --username=<username>       ESPN Login Username [default: ].
+  -p --password=<password>       ESPN Login Password [default: ].
 """
 import sys
 import re
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     arguments = docopt(__doc__)
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
-LEAGUE_ID = arguments['--id']
+LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
 PASSWORD = arguments['--password']
 print(LEAGUE_ID)
@@ -93,11 +93,11 @@ def getLeagueStandings():
       if checkIfAuthRequired():
         browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
         WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Standings']")))
-     
+
       teams_elements = browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--md Table2__odd']")
       header = browser.find_elements_by_xpath("//tr[@class='Table2__header-row Table2__tr Table2__even']")
       league_categories = header[4].text.split('\n')
-      
+
       # Teams elements returns an array of values from 4 different tables
         # 1/4 - Team Standings
         # 2 - 4 ESPN is combining 3 columns of tables into one
