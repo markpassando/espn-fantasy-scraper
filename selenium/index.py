@@ -1,36 +1,92 @@
+"""
+Usage:
+  index.py [-i LEAGUE_ID -u USERNAME -p PASSWORD]
+
+Options:
+  -i --league_id=<league_id>     ESPN League ID [default: 6059].
+  -u --username=<username>       ESPN Login Username [default: ].
+  -p --password=<password>       ESPN Login Password [default: ].
+"""
+import sys
 import re
+import json
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import TerminalFormatter
 from selenium import webdriver 
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC 
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-user = ""
-pwd = ""
+from docopt import docopt
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
-LEAGUE_ID = "6059"
+LEAGUE_ID = arguments['--league_id']
+USERNAME = arguments['--username']
+PASSWORD = arguments['--password']
+
+print('\n<---------------> espn-fantasy-scraper initializing <--------------->')
+print(f"LEAGUE_ID: '{LEAGUE_ID}''")
+print(f"USERNAME: '{USERNAME}''")
+print(f"PASSWORD: '{PASSWORD}''")
 
 # Helpers TODO: put in utils.py
 def strip_special_chars(string):
   return re.sub('[^A-Za-z0-9]+', '', string)
 
+def PygmentsPrint(dict_obj):
+  json_obj = json.dumps(dict_obj, sort_keys=True, indent=4)
+  print(highlight(json_obj, JsonLexer(), TerminalFormatter()))
+
+def checkIfAuthRequired():
+  # Selenium throws NoSuchElementException if it can not find an element
+  try:
+    login_button = browser.find_element_by_link_text('You need to login')
+
+    if login_button.text == 'You need to login':
+      try:
+        # Wait for iframe to load and switch to it
+        WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//iframe[@id='disneyid-iframe']")))
+        browser.switch_to.frame(browser.find_element_by_id('disneyid-iframe'))
+
+        # Get elements
+        email_input_element = browser.find_elements_by_xpath("//input[@type='email']")[0]
+        password_input_element = browser.find_elements_by_xpath("//input[@type='password']")[0]
+        login_button_element = browser.find_elements_by_xpath("//button[text()='Log In']")[0]
+
+        # Attempt Login
+        email_input_element.send_keys(USERNAME)
+        password_input_element.send_keys(PASSWORD)
+        login_button_element.click()
+        print(f"LOG - Successfully logged in for user '{USERNAME}'!")
+        return True
+      except Exception as e:
+        print(f"ERROR - {e}")
+  except NoSuchElementException as e:
+    print('LOG - User does not require Auth')
+    return False
+    
 driver = webdriver.ChromeOptions()
 # driver.add_argument(" — incognito")
 browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
-browser.get(f"{BASE_URL}standings?leagueId=6059")
+browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
 timeout = 30
 
-def getLeagueStandings ():
+def getLeagueStandings():
   try:
       WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+      if checkIfAuthRequired():
+        browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
+        WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Standings']")))
 
       teams_elements = browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--md Table2__odd']")
       header = browser.find_elements_by_xpath("//tr[@class='Table2__header-row Table2__tr Table2__even']")
-      # print(header)
-
       league_categories = header[4].text.split('\n')
-      
+
       # Teams elements returns an array of values from 4 different tables
         # 1/4 - Team Standings
         # 2 - 4 ESPN is combining 3 columns of tables into one
@@ -71,15 +127,15 @@ def getLeagueStandings ():
 
         # Assign it back to the team
         teams[current_team]["season_stats"] = current_season_stats
-
-      # print(titles)
+      print('\n<---------------> League Standings and Season Stats <--------------->')
+      PygmentsPrint(teams)
   except TimeoutException:
       print("Timed out waiting for page to load")
       browser.quit()
 
 # Get Scores
 def getWeekScores ():
-  browser.get(f"{BASE_URL}scoreboard?leagueId=6059&matchupPeriodId=1")
+  browser.get(f"{BASE_URL}scoreboard?leagueId={LEAGUE_ID}&matchupPeriodId=1")
   try:
       WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
       week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
@@ -133,11 +189,12 @@ def getWeekScores ():
           }
         scoreboard.append(weeks_score)
 
-      print('done')
+      print('\n<---------------> Scoreboard of Entire Season <--------------->')
+      PygmentsPrint(scoreboard)
       browser.quit()
   except TimeoutException:
       print("Timed out waiting for page to load")
       browser.quit()
 
-# getLeagueStandings()
+getLeagueStandings()
 getWeekScores()
