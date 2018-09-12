@@ -10,6 +10,7 @@ Options:
 import sys
 import re
 import json
+import time
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
@@ -28,11 +29,12 @@ BASE_URL = "http://fantasy.espn.com/basketball/league/"
 LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
 PASSWORD = arguments['--password']
+TIMEOUT = 30
 
 print('\n<---------------> espn-fantasy-scraper initializing <--------------->')
-print(f"LEAGUE_ID: '{LEAGUE_ID}''")
-print(f"USERNAME: '{USERNAME}''")
-print(f"PASSWORD: '{PASSWORD}''")
+print(f"LEAGUE_ID: '{LEAGUE_ID}'")
+print(f"USERNAME: '{USERNAME}'")
+print(f"PASSWORD: '{PASSWORD}'")
 
 # Helpers TODO: put in utils.py
 def strip_special_chars(string):
@@ -48,10 +50,12 @@ def checkIfAuthRequired():
     login_button = browser.find_element_by_link_text('You need to login')
 
     if login_button.text == 'You need to login':
+      print(f"LOG - Attempting to Log In with User: '{USERNAME}''")
       try:
         # Wait for iframe to load and switch to it
-        WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//iframe[@id='disneyid-iframe']")))
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//iframe[@id='disneyid-iframe']")))
         browser.switch_to.frame(browser.find_element_by_id('disneyid-iframe'))
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//input[@type='email']")))
 
         # Get elements
         email_input_element = browser.find_elements_by_xpath("//input[@type='email']")[0]
@@ -63,6 +67,9 @@ def checkIfAuthRequired():
         password_input_element.send_keys(PASSWORD)
         login_button_element.click()
         print(f"LOG - Successfully logged in for user '{USERNAME}'!")
+
+        # Needs to sleep, logging in too fast causing ESPN to ask to log in again
+        time.sleep(3)
         return True
       except Exception as e:
         print(f"ERROR - {e}")
@@ -73,15 +80,15 @@ def checkIfAuthRequired():
 driver = webdriver.ChromeOptions()
 # driver.add_argument(" — incognito")
 browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
-browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
-timeout = 30
+browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}&seasonId=2018")
 
 def getLeagueStandings():
   try:
-      WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+      print('LOG - Attempting to Crawl League Standings Page')
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
       if checkIfAuthRequired():
         browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
-        WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Standings']")))
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Standings']")))
 
       teams_elements = browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--md Table2__odd']")
       header = browser.find_elements_by_xpath("//tr[@class='Table2__header-row Table2__tr Table2__even']")
@@ -109,9 +116,14 @@ def getLeagueStandings():
           "losses": int(team_vals[2]),
           "ties": int(team_vals[3]),
           "percent": team_vals[4],
-          "games_behind": team_vals[5],
           "season_stats": {}
         }
+
+        try:
+          teams[team_vals[0]]["games_behind"] = team_vals[5]
+        except IndexError:
+          pass
+          # Leagues that are complete will not have "games behind" field
 
       # Build Up Season Stats
       for i in range(amount_of_teams):
@@ -129,15 +141,16 @@ def getLeagueStandings():
         teams[current_team]["season_stats"] = current_season_stats
       print('\n<---------------> League Standings and Season Stats <--------------->')
       PygmentsPrint(teams)
-  except TimeoutException:
+  except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
 
 # Get Scores
 def getWeekScores ():
+  print('LOG - Attempting to Crawl League Scoreboard Page')
   browser.get(f"{BASE_URL}scoreboard?leagueId={LEAGUE_ID}&matchupPeriodId=1")
   try:
-      WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
       week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
 
       weeks = week_dropdown_selector.text.split('\n')
@@ -192,7 +205,7 @@ def getWeekScores ():
       print('\n<---------------> Scoreboard of Entire Season <--------------->')
       PygmentsPrint(scoreboard)
       browser.quit()
-  except TimeoutException:
+  except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
 
