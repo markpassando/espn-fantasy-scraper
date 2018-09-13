@@ -14,9 +14,11 @@
         "--league_id",
         "6059",
         "--username",
-        "mpassando@gmail.com",
+        "",
         "--password",
-        "FooBarGang01"
+        "",
+        "--print",
+        "--file"
       ]
     },
     {
