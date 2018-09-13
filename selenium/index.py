@@ -68,7 +68,7 @@ def checkIfAuthRequired():
         login_button_element.click()
         print(f"LOG - Successfully logged in for user '{USERNAME}'!")
 
-        # Needs to sleep, logging in too fast causing ESPN to ask to log in again
+        # Needs to sleep, logging in too fast is causing ESPN to ask to log in again
         time.sleep(3)
         return True
       except Exception as e:
@@ -157,10 +157,16 @@ def getWeekScores ():
         WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Scoreboard']")))
 
       week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
+      category_elements = browser.find_elements_by_xpath("//tr[@class='Table2__header-row Table2__tr Table2__even']")[1].text.split('\n')
+      
       weeks = week_dropdown_selector.text.split('\n')
       amount_of_weeks = len(weeks)
       scoreboard = {}
-      
+      categories = []
+
+      for cat in category_elements:
+        categories.append(strip_special_chars(cat))
+
       for index, week in enumerate(weeks):
         # Change Page to week
         Select(week_dropdown_selector).select_by_visible_text(week)
@@ -194,9 +200,14 @@ def getWeekScores ():
           else:
             opponent = teams_elements[i + 1]
           
+          # Build Team Score Object for Week
+          score_for_week = {}
+          for j in range(amount_of_cats):
+            score_for_week[categories[j]] = scores[i][j]
+
           # Build team dictionary
           weeks_score[team_name] = {
-            "scores": scores[i],
+            "scores": score_for_week,
             "opponent": opponent.text,
             "cats_won": int(cats_score[0]),
             "cats_lost": int(cats_score[1]),
@@ -217,5 +228,5 @@ def getWeekScores ():
       print("Timed out waiting for page to load")
       browser.quit()
 
-# getLeagueStandings()
+getLeagueStandings()
 getWeekScores()
