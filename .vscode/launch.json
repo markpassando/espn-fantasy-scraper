@@ -14,9 +14,11 @@
         "--league_id",
         "6059",
         "--username",
-        "@gmail.com",
+        "",
         "--password",
-        ""
+        "",
+        "--print",
+        "--file"
       ]
     },
     {
