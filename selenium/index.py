@@ -44,6 +44,12 @@ def PygmentsPrint(dict_obj):
   json_obj = json.dumps(dict_obj, sort_keys=True, indent=4)
   print(highlight(json_obj, JsonLexer(), TerminalFormatter()))
 
+# Initialize Selenium
+driver = webdriver.ChromeOptions()
+# driver.add_argument(" — incognito")
+browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
+browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
+
 def checkIfAuthRequired():
   # Selenium throws NoSuchElementException if it can not find an element
   try:
@@ -76,11 +82,6 @@ def checkIfAuthRequired():
   except NoSuchElementException as e:
     print('LOG - User does not require Auth')
     return False
-    
-driver = webdriver.ChromeOptions()
-# driver.add_argument(" — incognito")
-browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
-browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}&seasonId=2018")
 
 def getLeagueStandings():
   try:
@@ -228,5 +229,6 @@ def getWeekScores ():
       print("Timed out waiting for page to load")
       browser.quit()
 
+# Begin Scraping
 getLeagueStandings()
 getWeekScores()
