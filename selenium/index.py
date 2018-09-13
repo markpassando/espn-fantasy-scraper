@@ -66,8 +66,7 @@ def json_output(data, file=None):
     file_path = os.path.join(script_dir, f"../json/{file}.json")
     with open(file_path, 'w') as outfile:
         json.dump(data, outfile)
-    print(f"LOG - Successfully Created: '{file_path}'")
-    
+    print(f"LOG - Successfully Created json file: '{file_path}'")
 
 # Initialize Selenium
 driver = webdriver.ChromeOptions()
@@ -165,11 +164,8 @@ def getLeagueStandings():
         # Assign it back to the team
         teams[current_team]["season_stats"] = current_season_stats
 
-      # with open('standings.json', 'w') as outfile:
-      #   json.dump(teams, outfile)
       print('\n<---------------> League Standings and Season Stats <--------------->')
       json_output(teams, 'standings')
-      # PygmentsPrint(teams)
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
@@ -251,7 +247,7 @@ def getWeekScores ():
         }
 
       print('\n<---------------> Scoreboard of Entire Season <--------------->')
-      PygmentsPrint(scoreboard)
+      json_output(scoreboard, 'scoreboard')
       browser.quit()
   except TimeoutException as e:
       print("Timed out waiting for page to load")
