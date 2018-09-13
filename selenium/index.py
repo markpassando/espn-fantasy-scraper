@@ -1,13 +1,17 @@
 """
 Usage:
-  index.py [-i LEAGUE_ID -u USERNAME -p PASSWORD]
+  index.py [-i LEAGUE_ID -u USERNAME -p PASSWORD --file --print]
 
 Options:
   -i --league_id=<league_id>     ESPN League ID [default: 6059].
   -u --username=<username>       ESPN Login Username [default: ].
   -p --password=<password>       ESPN Login Password [default: ].
+  --file                         Setting to create JSON file [default: false].
+  --print                        Setting print data to console [default: false].
+
 """
 import sys
+import os
 import re
 import json
 import time
@@ -26,10 +30,16 @@ if __name__ == '__main__':
     arguments = docopt(__doc__)
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
+TIMEOUT = 30
 LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
 PASSWORD = arguments['--password']
-TIMEOUT = 30
+OUTPUT_SETTINGS = {
+  "file": arguments['--file'],
+  "print": arguments['--print']
+}
+if OUTPUT_SETTINGS['file'] == False and OUTPUT_SETTINGS['print'] == False:
+  OUTPUT_SETTINGS['file'] = True
 
 print('\n<---------------> espn-fantasy-scraper initializing <--------------->')
 print(f"LEAGUE_ID: '{LEAGUE_ID}'")
@@ -44,11 +54,26 @@ def PygmentsPrint(dict_obj):
   json_obj = json.dumps(dict_obj, sort_keys=True, indent=4)
   print(highlight(json_obj, JsonLexer(), TerminalFormatter()))
 
+def json_output(data, file=None):
+  if OUTPUT_SETTINGS['print']:
+    PygmentsPrint(data)
+
+  if OUTPUT_SETTINGS['file']:
+    if not os.path.exists('json'):
+      os.mkdir('json')
+
+    script_dir = os.path.dirname(__file__)
+    file_path = os.path.join(script_dir, f"../json/{file}.json")
+    with open(file_path, 'w') as outfile:
+        json.dump(data, outfile)
+    print(f"LOG - Successfully Created: '{file_path}'")
+    
+
 # Initialize Selenium
 driver = webdriver.ChromeOptions()
 # driver.add_argument(" — incognito")
 browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
-browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
+browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}&seasonId=2018")
 
 def checkIfAuthRequired():
   # Selenium throws NoSuchElementException if it can not find an element
@@ -119,7 +144,6 @@ def getLeagueStandings():
           "percent": team_vals[4],
           "season_stats": {}
         }
-
         try:
           teams[team_vals[0]]["games_behind"] = team_vals[5]
         except IndexError:
@@ -140,8 +164,12 @@ def getLeagueStandings():
 
         # Assign it back to the team
         teams[current_team]["season_stats"] = current_season_stats
+
+      # with open('standings.json', 'w') as outfile:
+      #   json.dump(teams, outfile)
       print('\n<---------------> League Standings and Season Stats <--------------->')
-      PygmentsPrint(teams)
+      json_output(teams, 'standings')
+      # PygmentsPrint(teams)
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
