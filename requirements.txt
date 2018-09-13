@@ -1,3 +1,4 @@
 docopt==0.6.2
+Pygments==2.2.0
 selenium==3.14.0
 urllib3==1.23
