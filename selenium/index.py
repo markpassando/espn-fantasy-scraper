@@ -1,13 +1,17 @@
 """
 Usage:
-  index.py [-i LEAGUE_ID -u USERNAME -p PASSWORD]
+  index.py [-i LEAGUE_ID -u USERNAME -p PASSWORD --file --print]
 
 Options:
   -i --league_id=<league_id>     ESPN League ID [default: 6059].
   -u --username=<username>       ESPN Login Username [default: ].
   -p --password=<password>       ESPN Login Password [default: ].
+  --file                         Setting to create JSON file [default: false].
+  --print                        Setting print data to console [default: false].
+
 """
 import sys
+import os
 import re
 import json
 import time
@@ -26,10 +30,16 @@ if __name__ == '__main__':
     arguments = docopt(__doc__)
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
+TIMEOUT = 30
 LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
 PASSWORD = arguments['--password']
-TIMEOUT = 30
+OUTPUT_SETTINGS = {
+  "file": arguments['--file'],
+  "print": arguments['--print']
+}
+if OUTPUT_SETTINGS['file'] == False and OUTPUT_SETTINGS['print'] == False:
+  OUTPUT_SETTINGS['file'] = True
 
 print('\n<---------------> espn-fantasy-scraper initializing <--------------->')
 print(f"LEAGUE_ID: '{LEAGUE_ID}'")
@@ -43,6 +53,26 @@ def strip_special_chars(string):
 def PygmentsPrint(dict_obj):
   json_obj = json.dumps(dict_obj, sort_keys=True, indent=4)
   print(highlight(json_obj, JsonLexer(), TerminalFormatter()))
+
+def json_output(data, file=None):
+  if OUTPUT_SETTINGS['print']:
+    PygmentsPrint(data)
+
+  if OUTPUT_SETTINGS['file']:
+    if not os.path.exists('json'):
+      os.mkdir('json')
+
+    script_dir = os.path.dirname(__file__)
+    file_path = os.path.join(script_dir, f"../json/{file}.json")
+    with open(file_path, 'w') as outfile:
+        json.dump(data, outfile)
+    print(f"LOG - Successfully Created json file: '{file_path}'")
+
+# Initialize Selenium
+driver = webdriver.ChromeOptions()
+# driver.add_argument(" — incognito")
+browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
+browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}&seasonId=2018")
 
 def checkIfAuthRequired():
   # Selenium throws NoSuchElementException if it can not find an element
@@ -68,7 +98,7 @@ def checkIfAuthRequired():
         login_button_element.click()
         print(f"LOG - Successfully logged in for user '{USERNAME}'!")
 
-        # Needs to sleep, logging in too fast causing ESPN to ask to log in again
+        # Needs to sleep, logging in too fast is causing ESPN to ask to log in again
         time.sleep(3)
         return True
       except Exception as e:
@@ -76,11 +106,6 @@ def checkIfAuthRequired():
   except NoSuchElementException as e:
     print('LOG - User does not require Auth')
     return False
-    
-driver = webdriver.ChromeOptions()
-# driver.add_argument(" — incognito")
-browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
-browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}&seasonId=2018")
 
 def getLeagueStandings():
   try:
@@ -118,7 +143,6 @@ def getLeagueStandings():
           "percent": team_vals[4],
           "season_stats": {}
         }
-
         try:
           teams[team_vals[0]]["games_behind"] = team_vals[5]
         except IndexError:
@@ -139,8 +163,9 @@ def getLeagueStandings():
 
         # Assign it back to the team
         teams[current_team]["season_stats"] = current_season_stats
+
       print('\n<---------------> League Standings and Season Stats <--------------->')
-      PygmentsPrint(teams)
+      json_output(teams, 'standings')
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
@@ -157,10 +182,16 @@ def getWeekScores ():
         WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Scoreboard']")))
 
       week_dropdown_selector = browser.find_elements_by_class_name('dropdown__select')[0]
+      category_elements = browser.find_elements_by_xpath("//tr[@class='Table2__header-row Table2__tr Table2__even']")[1].text.split('\n')
+      
       weeks = week_dropdown_selector.text.split('\n')
       amount_of_weeks = len(weeks)
       scoreboard = {}
-      
+      categories = []
+
+      for cat in category_elements:
+        categories.append(strip_special_chars(cat))
+
       for index, week in enumerate(weeks):
         # Change Page to week
         Select(week_dropdown_selector).select_by_visible_text(week)
@@ -194,9 +225,14 @@ def getWeekScores ():
           else:
             opponent = teams_elements[i + 1]
           
+          # Build Team Score Object for Week
+          score_for_week = {}
+          for j in range(amount_of_cats):
+            score_for_week[categories[j]] = scores[i][j]
+
           # Build team dictionary
           weeks_score[team_name] = {
-            "scores": scores[i],
+            "scores": score_for_week,
             "opponent": opponent.text,
             "cats_won": int(cats_score[0]),
             "cats_lost": int(cats_score[1]),
@@ -211,11 +247,12 @@ def getWeekScores ():
         }
 
       print('\n<---------------> Scoreboard of Entire Season <--------------->')
-      PygmentsPrint(scoreboard)
+      json_output(scoreboard, 'scoreboard')
       browser.quit()
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
 
-# getLeagueStandings()
+# Begin Scraping
+getLeagueStandings()
 getWeekScores()
