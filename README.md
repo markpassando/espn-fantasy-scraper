@@ -31,4 +31,27 @@ Phase 1 is intended to work locally on a mac.
   - Install dependecies - `pip install -r requirements.txt`
 
 ## Usage
-`python index.py vars`
+The crawling script is located in `selenium/index.py`
+
+`cd selenium`
+
+### Arguments
+- `-i` or `--league_id` = Add your league ID
+- `-u` or `--username` = Add your username or email to ESPN Fantasy
+- `-p` or `--password` = Add your password to ESPN Fantasy
+- `--file` - Creates a json file with scraped data. (Will be default if neither `--file` or `--print` are passed)
+- `--print` - Prints the return scraped data.
+
+### Simple Demo Usage
+
+Default settings will scrape public league "6059" and create a json file of scraped data.
+
+`python index.py`
+
+### Real Example Usage
+
+`python index.py --league_id 2345 --username mark --password LeBronJames! --file --print`
+
+This will scrape the league `2345` with user `mark`, print to console and create a json file.
+
+Please ensure that your password is correct. If your league setting is public, you do not have to pass any credentials.
