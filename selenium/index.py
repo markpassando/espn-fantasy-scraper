@@ -30,6 +30,7 @@ if __name__ == '__main__':
     arguments = docopt(__doc__)
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
+ROSTER_URL = "http://fantasy.espn.com/basketball/"
 TIMEOUT = 30
 LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
@@ -170,6 +171,46 @@ def getLeagueStandings():
       print("Timed out waiting for page to load")
       browser.quit()
 
+def getRoster():
+  # TODO: May not be the best way to crawl the roster but is very useful to automatically set a line
+  print('LOG - Attempting to Roster Page')
+  browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId=13")
+  try:
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+
+      if checkIfAuthRequired():
+        browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId=13")
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")))
+
+      player_elements = browser.find_elements_by_xpath("//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")
+      team_name = browser.find_elements_by_xpath("//span[@class='teamName truncate']")[0].text
+      players = []
+
+      for player in player_elements:
+        player_info = player.text.split('\n')
+
+        # Check if Player plays multiple Positions
+        if ', ' in player_info[2]:
+          player_info[2] = player_info[2].split(', ')
+        else:
+          # Normalize Data - Keep player position in array
+          player_info[2] = [player_info[2]]
+
+        player_obj = {
+          "name": player_info[0],
+          "team": player_info[1],
+          "position": player_info[2]
+        }
+
+        players.append(player_obj)
+
+      # print('\n<---------------> Scoreboard of Entire Season <--------------->')
+      # json_output(scoreboard, 'scoreboard')
+      browser.quit()
+  except TimeoutException as e:
+      print("Timed out waiting for page to load")
+      browser.quit()
+
 # Get Scores
 def getWeekScores ():
   print('LOG - Attempting to Crawl League Scoreboard Page')
@@ -255,4 +296,5 @@ def getWeekScores ():
 
 # Begin Scraping
 getLeagueStandings()
+# getRoster()
 getWeekScores()
