@@ -15,6 +15,10 @@ import os
 import re
 import json
 import time
+import math
+import datetime
+
+# Third Party Dependencies
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
@@ -30,6 +34,7 @@ if __name__ == '__main__':
     arguments = docopt(__doc__)
 
 BASE_URL = "http://fantasy.espn.com/basketball/league/"
+ROSTER_URL = "http://fantasy.espn.com/basketball/"
 TIMEOUT = 30
 LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
@@ -170,6 +175,109 @@ def getLeagueStandings():
       print("Timed out waiting for page to load")
       browser.quit()
 
+def getRoster(team_id):
+  # TODO: May not be the best way to crawl the roster but is very useful to automatically set a line
+  print(f"LOG - Attempting crawl to Roster Page for team_id '{team_id}'")
+  browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId={team_id}")
+  try:
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+
+      if checkIfAuthRequired():
+        browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId={team_id}")
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")))
+
+      player_elements = browser.find_elements_by_xpath("//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")
+      team_name = browser.find_elements_by_xpath("//span[@class='teamName truncate']")[0].text
+      players = []
+
+      for player in player_elements:
+        player_info = player.text.split('\n')
+
+        # Check if Player plays multiple Positions
+        if ', ' in player_info[2]:
+          player_info[2] = player_info[2].split(', ')
+        else:
+          # Normalize Data - Keep player position in array
+          player_info[2] = [player_info[2]]
+
+        player_obj = {
+          "name": player_info[0],
+          "team": player_info[1],
+          "position": player_info[2]
+        }
+
+        players.append(player_obj)
+
+      return players, team_name
+  except TimeoutException as e:
+      print("Timed out waiting for page to load")
+      browser.quit()
+
+def getAllRosters():
+  print('LOG - Attempting crawl to All Rosters Page')
+  browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}&seasonId=2018")
+  try:
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+
+      if checkIfAuthRequired():
+        browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}&seasonId=2018")
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='btn roster-btn btn--alt']")))
+
+      team_links_elements = browser.find_elements_by_xpath("//a[@class='btn roster-btn btn--alt']")
+      team_ids = []
+      rosters = {}
+
+      for team_link in team_links_elements:
+        url = team_link.get_attribute("href")
+        id = url.split('&teamId=')[1]
+        team_ids.append(id)
+
+      for team_id in team_ids:
+        roster, team_name = getRoster(team_id)
+        rosters[team_name] = roster
+
+      print('\n<---------------> All Rosters <--------------->')
+      json_output(rosters, 'rosters')
+  except TimeoutException as e:
+      print("Timed out waiting for page to load")
+      browser.quit()
+
+def getDraftRecap():
+  print('LOG - Attempting to Draft Recap Page')
+  browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}&seasonId=2018")
+  try:
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+
+      if checkIfAuthRequired():
+        browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}&seasonId=2018")
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='Table2__Title']")))
+
+      round_elements = browser.find_elements_by_xpath("//div[@class='Table2__Title']")
+      player_elements = browser.find_elements_by_xpath("//div[@class='jsx-2810852873 table--cell Player']")
+      team_drafted_elements = browser.find_elements_by_xpath("//a[@class='flex items-center team--link inline-flex v-mid']")
+      draft= []
+
+      for i, player in enumerate(player_elements):
+        player_info = player.text.split(', ')
+
+        player_obj = {
+          "name": player_info[0][:-4], #Remove team
+          "team": player_info[0][-3:], #Revove player name
+          "position": player_info[1],
+          "draft_position": i + 1,
+          "draft_team": team_drafted_elements[i].text,
+          "draft_round": math.ceil((i + 1) / 12)
+        }
+
+        draft.append(player_obj)
+
+      print('\n<---------------> Draft Recap <--------------->')
+      json_output(draft, 'draft')
+  except TimeoutException as e:
+      print("Timed out waiting for page to load")
+      browser.quit()
+
+
 # Get Scores
 def getWeekScores ():
   print('LOG - Attempting to Crawl League Scoreboard Page')
@@ -248,11 +356,16 @@ def getWeekScores ():
 
       print('\n<---------------> Scoreboard of Entire Season <--------------->')
       json_output(scoreboard, 'scoreboard')
-      browser.quit()
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
 
 # Begin Scraping
+start_time = datetime.datetime.now()
 getLeagueStandings()
 getWeekScores()
+getDraftRecap()
+getAllRosters()
+browser.quit()
+end_time = datetime.datetime.now()
+print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
