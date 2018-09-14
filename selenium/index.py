@@ -15,6 +15,9 @@ import os
 import re
 import json
 import time
+import math
+
+# Third Party Dependencies
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import TerminalFormatter
@@ -211,6 +214,43 @@ def getRoster():
       print("Timed out waiting for page to load")
       browser.quit()
 
+def getDraftRecap():
+  print('LOG - Attempting to Draft Recap Page')
+  browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}&seasonId=2018")
+  try:
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+
+      if checkIfAuthRequired():
+        browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}&seasonId=2018")
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='Table2__Title']")))
+
+      round_elements = browser.find_elements_by_xpath("//div[@class='Table2__Title']")
+      player_elements = browser.find_elements_by_xpath("//div[@class='jsx-2810852873 table--cell Player']")
+      team_drafted_elements = browser.find_elements_by_xpath("//a[@class='flex items-center team--link inline-flex v-mid']")
+      draft= []
+
+      for i, player in enumerate(player_elements):
+        player_info = player.text.split(', ')
+
+        player_obj = {
+          "name": player_info[0][:-4], #Remove team
+          "team": player_info[0][-3:], #Revove player name
+          "position": player_info[1],
+          "draft_position": i + 1,
+          "draft_team": team_drafted_elements[i].text,
+          "draft_round": math.ceil((i + 1) / 12)
+        }
+
+        draft.append(player_obj)
+
+      print('\n<---------------> Draft Recap <--------------->')
+      json_output(draft, 'draft')
+      browser.quit()
+  except TimeoutException as e:
+      print("Timed out waiting for page to load")
+      browser.quit()
+
+
 # Get Scores
 def getWeekScores ():
   print('LOG - Attempting to Crawl League Scoreboard Page')
@@ -296,5 +336,6 @@ def getWeekScores ():
 
 # Begin Scraping
 getLeagueStandings()
-# getRoster()
 getWeekScores()
+getDraftRecap()
+# getRoster()
