@@ -174,15 +174,15 @@ def getLeagueStandings():
       print("Timed out waiting for page to load")
       browser.quit()
 
-def getRoster():
+def getRoster(team_id):
   # TODO: May not be the best way to crawl the roster but is very useful to automatically set a line
-  print('LOG - Attempting to Roster Page')
-  browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId=13")
+  print(f"LOG - Attempting crawl to Roster Page for team_id '{team_id}'")
+  browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId={team_id}")
   try:
       WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
       if checkIfAuthRequired():
-        browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId=13")
+        browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId={team_id}")
         WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")))
 
       player_elements = browser.find_elements_by_xpath("//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")
@@ -207,8 +207,36 @@ def getRoster():
 
         players.append(player_obj)
 
-      # print('\n<---------------> Scoreboard of Entire Season <--------------->')
-      # json_output(scoreboard, 'scoreboard')
+      return players, team_name
+  except TimeoutException as e:
+      print("Timed out waiting for page to load")
+      browser.quit()
+
+def getAllRosters():
+  print('LOG - Attempting crawl to All Rosters Page')
+  browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}&seasonId=2018")
+  try:
+      WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+
+      if checkIfAuthRequired():
+        browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}&seasonId=2018")
+        WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='btn roster-btn btn--alt']")))
+
+      team_links_elements = browser.find_elements_by_xpath("//a[@class='btn roster-btn btn--alt']")
+      team_ids = []
+      rosters = {}
+
+      for team_link in team_links_elements:
+        url = team_link.get_attribute("href")
+        id = url.split('&teamId=')[1]
+        team_ids.append(id)
+
+      for team_id in team_ids:
+        roster, team_name = getRoster(team_id)
+        rosters[team_name] = roster
+
+      print('\n<---------------> All Rosters <--------------->')
+      json_output(rosters, 'rosters')
       browser.quit()
   except TimeoutException as e:
       print("Timed out waiting for page to load")
@@ -338,4 +366,4 @@ def getWeekScores ():
 getLeagueStandings()
 getWeekScores()
 getDraftRecap()
-# getRoster()
+getAllRosters()
