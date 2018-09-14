@@ -16,6 +16,7 @@ import re
 import json
 import time
 import math
+import datetime
 
 # Third Party Dependencies
 from pygments import highlight
@@ -237,7 +238,6 @@ def getAllRosters():
 
       print('\n<---------------> All Rosters <--------------->')
       json_output(rosters, 'rosters')
-      browser.quit()
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
@@ -273,7 +273,6 @@ def getDraftRecap():
 
       print('\n<---------------> Draft Recap <--------------->')
       json_output(draft, 'draft')
-      browser.quit()
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
@@ -357,13 +356,16 @@ def getWeekScores ():
 
       print('\n<---------------> Scoreboard of Entire Season <--------------->')
       json_output(scoreboard, 'scoreboard')
-      browser.quit()
   except TimeoutException as e:
       print("Timed out waiting for page to load")
       browser.quit()
 
 # Begin Scraping
+start_time = datetime.datetime.now()
 getLeagueStandings()
 getWeekScores()
 getDraftRecap()
 getAllRosters()
+browser.quit()
+end_time = datetime.datetime.now()
+print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
