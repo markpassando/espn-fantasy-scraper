@@ -1,25 +1,13 @@
-"""
-Usage:
-  index.py [-i self.LEAGUE_ID -u USERNAME -p PASSWORD --file --print]
 
-Options:
-  -i --league_id=<league_id>     ESPN League ID [default: 6059].
-  -u --username=<username>       ESPN Login Username [default: ].
-  -p --password=<password>       ESPN Login Password [default: ].
-  --file                         Setting to create JSON file [default: false].
-  --print                        Setting print data to console [default: false].
-
-"""
 import sys
-import os
 import time
 import math
 import datetime
 import json
 
+# Local Dependencies
 from utils import (
-  strip_special_chars,
-  PygmentsPrint
+  strip_special_chars
 )
 
 # Third Party Dependencies
@@ -29,10 +17,6 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC 
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from docopt import docopt
-
-if __name__ == '__main__':
-    arguments = docopt(__doc__)
 
 class ESPNWebScraper:
   def __init__(self, league_id, username, password):
@@ -393,13 +377,13 @@ class ESPNWebScraper:
 
 # Begin Scraping
 start_time = datetime.datetime.now()
-espn_scraper = ESPNWebScraper("6059", "user", "pw")
-rosters = espn_scraper.getAllRosters()
-standings = espn_scraper.getLeagueStandings()
-scores = espn_scraper.getWeekScores()
-draft_recap = espn_scraper.getDraftRecap()
+# espn_scraper = ESPNWebScraper("6059", "user", "pw")
+# rosters = espn_scraper.getAllRosters()
+# standings = espn_scraper.getLeagueStandings()
+# scores = espn_scraper.getWeekScores()
+# draft_recap = espn_scraper.getDraftRecap()
+# espn_scraper.closeBrowser()
 end_time = datetime.datetime.now()
-espn_scraper.closeBrowser()
 print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
 print('debugger')
 
@@ -408,36 +392,11 @@ print('debugger')
 # BASE_URL = "http://fantasy.espn.com/basketball/league/"
 # ROSTER_URL = "http://fantasy.espn.com/basketball/"
 # TIMEOUT = 30
-LEAGUE_ID = arguments['--league_id']
-USERNAME = arguments['--username']
-PASSWORD = arguments['--password']
-OUTPUT_SETTINGS = {
-  "file": arguments['--file'],
-  "print": arguments['--print']
-}
-if OUTPUT_SETTINGS['file'] == False and OUTPUT_SETTINGS['print'] == False:
-  OUTPUT_SETTINGS['file'] = True
 
-print('\n<---------------> espn-fantasy-scraper initializing <--------------->')
-print(f"LEAGUE_ID: '{LEAGUE_ID}'")
-print(f"USERNAME: '{USERNAME}'")
-print(f"PASSWORD: '{PASSWORD}'")
 
 # Initialize Selenium
 
-def json_output(data, file=None):
-  if OUTPUT_SETTINGS['print']:
-    PygmentsPrint(data)
 
-  if OUTPUT_SETTINGS['file']:
-    if not os.path.exists('json'):
-      os.mkdir('json')
-
-    script_dir = os.path.dirname(__file__)
-    file_path = os.path.join(script_dir, f"../json/{file}.json")
-    with open(file_path, 'w') as outfile:
-        json.dump(data, outfile)
-    print(f"INFO - Successfully Created json file: '{file_path}'")
 
 # Begin Scraping
 # start_time = datetime.datetime.now()
