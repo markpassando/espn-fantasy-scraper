@@ -5,10 +5,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Scraper",
+      "name": "ESPNWebScraper: TerminalWrapper",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/selenium/index.py",
+      "program": "${workspaceFolder}/web-scraper/TerminalWrapper.py",
       "console": "integratedTerminal",
       "args": [
         "--league_id",
