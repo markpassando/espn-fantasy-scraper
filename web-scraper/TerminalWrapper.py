@@ -23,6 +23,7 @@ from utils import (
 # Third Party Dependencies
 from docopt import docopt
 
+# Collect Terminal Arguments
 if __name__ == '__main__':
     arguments = docopt(__doc__)
 
@@ -49,6 +50,12 @@ class TerminalWrapper:
     self.PASSWORD = password
     self.OUTPUT_SETTINGS = output_settings
     self.ESPNWebScraper = ESPNWebScraper(self.LEAGUE_ID, self.USERNAME, self.PASSWORD)
+
+  def closeBrowser(self):
+    self.ESPNWebScraper.closeBrowser()
+  
+  def timeScrape(self, start_time, end_time, name):
+    print(f"INFO - TerminalWrapper - {name} Crawl Completed: Total Time {str(end_time - start_time)}")
 
   def json_output(self, data, file=None):
     if self.OUTPUT_SETTINGS['print']:
@@ -92,13 +99,14 @@ class TerminalWrapper:
     end_time = datetime.datetime.now()
     self.timeScrape(start_time, end_time, 'All Weekly Scores')
 
-  def timeScrape(self, start_time, end_time, name):
-    print(f"INFO - TerminalWrapper - {name} Crawl Completed: Total Time {str(end_time - start_time)}")
-
-
+# Start TerminalWrapper
+start_time = datetime.datetime.now()
 terminalwrapper = TerminalWrapper(LEAGUE_ID,USERNAME, PASSWORD, OUTPUT_SETTINGS)
 terminalwrapper.getLeagueStandings()
 terminalwrapper.getDraftRecap()
-terminalwrapper.getAllRosters()
 terminalwrapper.getWeekScores()
-print("INFO - TerminalWrapper has started")
+terminalwrapper.getAllRosters()
+terminalwrapper.closeBrowser()
+end_time = datetime.datetime.now()
+print('<---------------> TerminalWrapper COMPLETE <--------------->')
+print(f"Total Time: {str(end_time - start_time)}")
