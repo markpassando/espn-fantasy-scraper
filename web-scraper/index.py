@@ -137,7 +137,7 @@ class ESPNWebScraper:
         print('\n<---------------> Draft Recap <--------------->')
         return draft
     except TimeoutException as e:
-        print("Timed out waiting for page to load")
+        print("ERROR - Timed out waiting for page to load")
         self.closeBrowser()
     except Exception as e:
         self.closeBrowser()
@@ -205,7 +205,7 @@ class ESPNWebScraper:
         print('\n<---------------> League Standings and Season Stats <--------------->')
         return teams
     except TimeoutException as e:
-        print("Timed out waiting for page to load")
+        print("ERROR - Timed out waiting for page to load")
         self.closeBrowser()
     except Exception as e:
         self.closeBrowser()
@@ -245,8 +245,8 @@ class ESPNWebScraper:
 
         return players, team_name
     except TimeoutException as e:
-        print("Timed out waiting for page to load")
-        self.browser.quit()
+        print("ERROR - Timed out waiting for page to load")
+        self.closeBrowser()
 
   def getAllRosters(self):
     print('INFO - Attempting crawl to All Rosters Page')
@@ -274,8 +274,8 @@ class ESPNWebScraper:
         print('\n<---------------> All Rosters <--------------->')
         return rosters
     except TimeoutException as e:
-        print("Timed out waiting for page to load")
-        self.browser.quit()
+        print("ERROR - Timed out waiting for page to load")
+        self.closeBrowser()
     except Exception as e:
         self.closeBrowser()
         print(f"ERROR - {e}")
@@ -358,7 +358,7 @@ class ESPNWebScraper:
         print('\n<---------------> Scoreboard of Entire Season <--------------->')
         return scoreboard
     except TimeoutException as e:
-        print("Timed out waiting for page to load")
+        print("ERROR - Timed out waiting for page to load")
         self.closeBrowser()
     except Exception as e:
         self.closeBrowser()
