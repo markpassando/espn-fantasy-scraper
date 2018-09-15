@@ -1,5 +1,4 @@
 
-import sys
 import time
 import math
 import datetime
@@ -221,7 +220,7 @@ class ESPNWebScraper:
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
-          self.browser.get(f"{ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
+          self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")))
 
         player_elements = self.browser.find_elements_by_xpath("//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")
@@ -375,35 +374,14 @@ class ESPNWebScraper:
         print(f"ERROR - {e}")
         return self.returnErrorJson(e, 500)
 
-# Begin Scraping
-start_time = datetime.datetime.now()
+# Use for Local Testing
+# start_time = datetime.datetime.now()
 # espn_scraper = ESPNWebScraper("6059", "user", "pw")
 # rosters = espn_scraper.getAllRosters()
 # standings = espn_scraper.getLeagueStandings()
 # scores = espn_scraper.getWeekScores()
 # draft_recap = espn_scraper.getDraftRecap()
 # espn_scraper.closeBrowser()
-end_time = datetime.datetime.now()
-print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
-print('debugger')
-
-
-
-# BASE_URL = "http://fantasy.espn.com/basketball/league/"
-# ROSTER_URL = "http://fantasy.espn.com/basketball/"
-# TIMEOUT = 30
-
-
-# Initialize Selenium
-
-
-
-# Begin Scraping
-# start_time = datetime.datetime.now()
-# getLeagueStandings()
-# getWeekScores()
-# getDraftRecap()
-# getAllRosters()
-# browser.quit()
 # end_time = datetime.datetime.now()
 # print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
+# print('debugger')
