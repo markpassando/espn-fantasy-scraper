@@ -135,7 +135,7 @@ class ESPNWebScraper:
 
           draft.append(player_obj)
 
-        print('\n<---------------> Draft Recap <--------------->')
+        print('INFO - SUCCESS! - Draft Recap has been scraped.\n')
         return draft
     except TimeoutException as e:
         print("ERROR - Timed out waiting for page to load")
@@ -203,7 +203,7 @@ class ESPNWebScraper:
           # Assign it back to the team
           teams[current_team]["season_stats"] = current_season_stats
 
-        print('\n<---------------> League Standings and Season Stats <--------------->')
+        print('INFO - SUCCESS! - League Standings and Season Stats have been scraped.\n')
         return teams
     except TimeoutException as e:
         print("ERROR - Timed out waiting for page to load")
@@ -274,7 +274,7 @@ class ESPNWebScraper:
           roster, team_name = self.getRoster(team_id)
           rosters[team_name] = roster
 
-        print('\n<---------------> All Rosters <--------------->')
+        print('INFO - SUCCESS! - All Rosters have been scraped.\n')
         return rosters
     except TimeoutException as e:
         print("ERROR - Timed out waiting for page to load")
@@ -359,7 +359,7 @@ class ESPNWebScraper:
             "scores": weeks_score
           }
 
-        print('\n<---------------> Scoreboard of Entire Season <--------------->')
+        print('INFO - SUCCESS! - All Weekly Scores have been scraped.\n')
         return scoreboard
     except TimeoutException as e:
         print("ERROR - Timed out waiting for page to load")
