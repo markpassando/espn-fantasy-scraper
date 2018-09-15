@@ -74,9 +74,12 @@ def json_output(data, file=None):
     print(f"LOG - Successfully Created json file: '{file_path}'")
 
 # Initialize Selenium
-driver = webdriver.ChromeOptions()
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--no-sandbox')
 # driver.add_argument(" — incognito")
-browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=driver)
+browser = webdriver.Chrome(executable_path='/opt/chromedriver', chrome_options=chrome_options,
+  service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
 browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}&seasonId=2018")
 
 def checkIfAuthRequired():
