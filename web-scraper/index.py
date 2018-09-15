@@ -12,16 +12,17 @@ Options:
 """
 import sys
 import os
-import re
-import json
 import time
 import math
 import datetime
+import json
+
+from utils import (
+  strip_special_chars,
+  PygmentsPrint
+)
 
 # Third Party Dependencies
-from pygments import highlight
-from pygments.lexers import JsonLexer
-from pygments.formatters import TerminalFormatter
 from selenium import webdriver 
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait, Select
@@ -51,13 +52,14 @@ print(f"LEAGUE_ID: '{LEAGUE_ID}'")
 print(f"USERNAME: '{USERNAME}'")
 print(f"PASSWORD: '{PASSWORD}'")
 
-# Helpers TODO: put in utils.py
-def strip_special_chars(string):
-  return re.sub('[^A-Za-z0-9]+', '', string)
-
-def PygmentsPrint(dict_obj):
-  json_obj = json.dumps(dict_obj, sort_keys=True, indent=4)
-  print(highlight(json_obj, JsonLexer(), TerminalFormatter()))
+# Initialize Selenium
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--no-sandbox')
+# driver.add_argument(" — incognito")
+browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options,
+  service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
+browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
 
 def json_output(data, file=None):
   if OUTPUT_SETTINGS['print']:
@@ -72,15 +74,6 @@ def json_output(data, file=None):
     with open(file_path, 'w') as outfile:
         json.dump(data, outfile)
     print(f"LOG - Successfully Created json file: '{file_path}'")
-
-# Initialize Selenium
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--no-sandbox')
-# driver.add_argument(" — incognito")
-browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options,
-  service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
-browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
 
 def checkIfAuthRequired():
   # Selenium throws NoSuchElementException if it can not find an element
