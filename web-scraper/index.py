@@ -45,7 +45,6 @@ class ESPNWebScraper:
     self.is_browser_open = False
     self.startBrowser()
     
-
   def startBrowser(self):
     chrome_options = webdriver.ChromeOptions()
     # chrome_options.add_argument('--headless')
@@ -53,12 +52,13 @@ class ESPNWebScraper:
     self.browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options,
       service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
     self.is_browser_open = True
-    # self.browser.get(f"{self.BASE_URL}standings?leagueId={self.LEAGUE_ID}")
+    print(f"INFO - browser webdriver Instance has been OPENED.")
 
   def closeBrowser(self):
     if self.is_browser_open:
       self.is_browser_open = False
       self.browser.quit()
+      print(f"INFO - browser webdriver Instance has been CLOSED.")
 
   def checkIsBrowserOpen(self):
     if not self.is_browser_open:
@@ -70,7 +70,7 @@ class ESPNWebScraper:
       login_button = self.browser.find_element_by_link_text('You need to login')
 
       if login_button.text == 'You need to login':
-        print(f"LOG - Attempting to Log In with User: '{self.USERNAME}''")
+        print(f"INFO - Attempting to Log In with User: '{self.USERNAME}''")
         try:
           # Wait for iframe to load and switch to it
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//iframe[@id='disneyid-iframe']")))
@@ -86,7 +86,7 @@ class ESPNWebScraper:
           email_input_element.send_keys(self.USERNAME)
           password_input_element.send_keys(self.PASSWORD)
           login_button_element.click()
-          print(f"LOG - Successfully logged in for user '{self.USERNAME}'!")
+          print(f"INFO - Successfully logged in for user '{self.USERNAME}'!")
 
           # Needs to sleep, logging in too fast is causing ESPN to ask to log in again
           time.sleep(3)
@@ -94,11 +94,11 @@ class ESPNWebScraper:
         except Exception as e:
           print(f"ERROR - {e}")
     except NoSuchElementException as e:
-      print('LOG - User does not require Auth')
+      print('INFO - User does not require Auth')
       return False
   
   def getDraftRecap(self):
-    print('LOG - Attempting to Draft Recap Page')
+    print('INFO - Attempting to Draft Recap Page')
     self.browser.get(f"{self.BASE_URL}draftrecap?leagueId={self.LEAGUE_ID}")
     try:
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
@@ -138,13 +138,15 @@ class ESPNWebScraper:
         return draft
     except TimeoutException as e:
         print("Timed out waiting for page to load")
-        self.browser.quit()
-
+        self.closeBrowser()
+    except Exception as e:
+        self.closeBrowser()
+        print(f"ERROR - {e}")
 
   def getLeagueStandings(self):
     try:
         self.checkIsBrowserOpen()
-        print('LOG - Attempting to Crawl League Standings Page')
+        print('INFO - Attempting to Crawl League Standings Page')
         self.browser.get(f"{self.BASE_URL}standings?leagueId={self.LEAGUE_ID}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
         if self.checkIfAuthRequired():
@@ -204,12 +206,14 @@ class ESPNWebScraper:
         return teams
     except TimeoutException as e:
         print("Timed out waiting for page to load")
-        self.browser.quit()
+        self.closeBrowser()
+    except Exception as e:
+        self.closeBrowser()
+        print(f"ERROR - {e}")
 
   def getRoster(self, team_id):
-    # TODO: May not be the best way to crawl the roster but is very useful to automatically set a line
-    print(f"LOG - Attempting crawl to Roster Page for team_id '{team_id}'")
-    self.browser.get(f"{ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
+    print(f"INFO - Attempting crawl to Roster Page for team_id '{team_id}'")
+    self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
     try:
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
@@ -245,7 +249,7 @@ class ESPNWebScraper:
         self.browser.quit()
 
   def getAllRosters(self):
-    print('LOG - Attempting crawl to All Rosters Page')
+    print('INFO - Attempting crawl to All Rosters Page')
     self.browser.get(f"{self.BASE_URL}rosters?leagueId={self.LEAGUE_ID}")
     try:
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
@@ -264,7 +268,7 @@ class ESPNWebScraper:
           team_ids.append(id)
 
         for team_id in team_ids:
-          roster, team_name = self.getRoster(self, team_id)
+          roster, team_name = self.getRoster(team_id)
           rosters[team_name] = roster
 
         print('\n<---------------> All Rosters <--------------->')
@@ -273,12 +277,11 @@ class ESPNWebScraper:
         print("Timed out waiting for page to load")
         self.browser.quit()
     except Exception as e:
-      self.closeBrowser()
-      print(f"ERROR - {e}")
+        self.closeBrowser()
+        print(f"ERROR - {e}")
 
-  
   def getWeekScores(self):
-    print('LOG - Attempting to Crawl League Scoreboard Page')
+    print('INFO - Attempting to Crawl League Scoreboard Page')
     self.browser.get(f"{self.BASE_URL}scoreboard?leagueId={self.LEAGUE_ID}&matchupPeriodId=1")
     try:
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
@@ -356,17 +359,22 @@ class ESPNWebScraper:
         return scoreboard
     except TimeoutException as e:
         print("Timed out waiting for page to load")
-        self.browser.quit()
+        self.closeBrowser()
+    except Exception as e:
+        self.closeBrowser()
+        print(f"ERROR - {e}")
 
 # Begin Scraping
 start_time = datetime.datetime.now()
 espn_scraper = ESPNWebScraper("6059", "user", "pw")
-espn_scraper.getAllRosters()
-espn_scraper.getLeagueStandings()
-# espn_scraper.getWeekScores()
-# espn_scraper.getDraftRecap()
+rosters = espn_scraper.getAllRosters()
+standings = espn_scraper.getLeagueStandings()
+scores = espn_scraper.getWeekScores()
+draft_recap = espn_scraper.getDraftRecap()
 end_time = datetime.datetime.now()
+espn_scraper.closeBrowser()
 print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
+print('debugger')
 
 
 
@@ -402,7 +410,7 @@ def json_output(data, file=None):
     file_path = os.path.join(script_dir, f"../json/{file}.json")
     with open(file_path, 'w') as outfile:
         json.dump(data, outfile)
-    print(f"LOG - Successfully Created json file: '{file_path}'")
+    print(f"INFO - Successfully Created json file: '{file_path}'")
 
 # Begin Scraping
 # start_time = datetime.datetime.now()
