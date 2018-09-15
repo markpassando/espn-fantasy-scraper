@@ -64,6 +64,16 @@ class ESPNWebScraper:
     if not self.is_browser_open:
       self.startBrowser()
 
+  def returnErrorJson(self, errMsg, status):
+    error = {
+          "error": {
+            "status_code": str(status),
+            "message": str(errMsg)
+          }
+        }
+
+    return json.dumps(error)
+
   def checkIfAuthRequired(self):
     # Selenium throws NoSuchElementException if it can not find an element
     try:
@@ -138,11 +148,14 @@ class ESPNWebScraper:
         print('INFO - SUCCESS! - Draft Recap has been scraped.\n')
         return draft
     except TimeoutException as e:
-        print("ERROR - Timed out waiting for page to load")
+        error_msg = "ERROR - Timed out waiting for page to load"
+        print(error_msg)
         self.closeBrowser()
+        return self.returnErrorJson(error_msg, 504)
     except Exception as e:
         self.closeBrowser()
         print(f"ERROR - {e}")
+        return self.returnErrorJson(e, 500)
 
   def getLeagueStandings(self):
     try:
@@ -206,11 +219,15 @@ class ESPNWebScraper:
         print('INFO - SUCCESS! - League Standings and Season Stats have been scraped.\n')
         return teams
     except TimeoutException as e:
-        print("ERROR - Timed out waiting for page to load")
+        error_msg = "ERROR - Timed out waiting for page to load"
+        print(error_msg)
         self.closeBrowser()
+        return self.returnErrorJson(error_msg, 504)
     except Exception as e:
         self.closeBrowser()
         print(f"ERROR - {e}")
+        return self.returnErrorJson(e, 500)
+
 
   def getRoster(self, team_id):
     try:
@@ -277,11 +294,14 @@ class ESPNWebScraper:
         print('INFO - SUCCESS! - All Rosters have been scraped.\n')
         return rosters
     except TimeoutException as e:
-        print("ERROR - Timed out waiting for page to load")
+        error_msg = "ERROR - Timed out waiting for page to load"
+        print(error_msg)
         self.closeBrowser()
+        return self.returnErrorJson(error_msg, 504)
     except Exception as e:
         self.closeBrowser()
         print(f"ERROR - {e}")
+        return self.returnErrorJson(e, 500)
 
   def getWeekScores(self):
     try:
@@ -362,11 +382,14 @@ class ESPNWebScraper:
         print('INFO - SUCCESS! - All Weekly Scores have been scraped.\n')
         return scoreboard
     except TimeoutException as e:
-        print("ERROR - Timed out waiting for page to load")
+        error_msg = "ERROR - Timed out waiting for page to load"
+        print(error_msg)
         self.closeBrowser()
+        return self.returnErrorJson(error_msg, 504)
     except Exception as e:
         self.closeBrowser()
         print(f"ERROR - {e}")
+        return self.returnErrorJson(e, 500)
 
 # Begin Scraping
 start_time = datetime.datetime.now()
