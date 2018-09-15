@@ -78,9 +78,9 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument('--headless')
 chrome_options.add_argument('--no-sandbox')
 # driver.add_argument(" — incognito")
-browser = webdriver.Chrome(executable_path='/opt/chromedriver', chrome_options=chrome_options,
+browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options,
   service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
-browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}&seasonId=2018")
+browser.get(f"{BASE_URL}standings?leagueId={LEAGUE_ID}")
 
 def checkIfAuthRequired():
   # Selenium throws NoSuchElementException if it can not find an element
@@ -181,12 +181,12 @@ def getLeagueStandings():
 def getRoster(team_id):
   # TODO: May not be the best way to crawl the roster but is very useful to automatically set a line
   print(f"LOG - Attempting crawl to Roster Page for team_id '{team_id}'")
-  browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId={team_id}")
+  browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&teamId={team_id}")
   try:
       WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
       if checkIfAuthRequired():
-        browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&seasonId=2018&teamId={team_id}")
+        browser.get(f"{ROSTER_URL}team?leagueId={LEAGUE_ID}&teamId={team_id}")
         WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")))
 
       player_elements = browser.find_elements_by_xpath("//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")
@@ -218,12 +218,12 @@ def getRoster(team_id):
 
 def getAllRosters():
   print('LOG - Attempting crawl to All Rosters Page')
-  browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}&seasonId=2018")
+  browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}")
   try:
       WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
       if checkIfAuthRequired():
-        browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}&seasonId=2018")
+        browser.get(f"{BASE_URL}rosters?leagueId={LEAGUE_ID}")
         WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='btn roster-btn btn--alt']")))
 
       team_links_elements = browser.find_elements_by_xpath("//a[@class='btn roster-btn btn--alt']")
@@ -247,12 +247,12 @@ def getAllRosters():
 
 def getDraftRecap():
   print('LOG - Attempting to Draft Recap Page')
-  browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}&seasonId=2018")
+  browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}")
   try:
       WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
       if checkIfAuthRequired():
-        browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}&seasonId=2018")
+        browser.get(f"{BASE_URL}draftrecap?leagueId={LEAGUE_ID}")
         WebDriverWait(browser, TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='Table2__Title']")))
 
       round_elements = browser.find_elements_by_xpath("//div[@class='Table2__Title']")
@@ -264,13 +264,21 @@ def getDraftRecap():
         player_info = player.text.split(', ')
 
         player_obj = {
-          "name": player_info[0][:-4], #Remove team
-          "team": player_info[0][-3:], #Revove player name
-          "position": player_info[1],
           "draft_position": i + 1,
           "draft_team": team_drafted_elements[i].text,
           "draft_round": math.ceil((i + 1) / 12)
         }
+
+        # Check if Draft has not occured yet
+        if len(player_info) == 1:
+          player_obj["name"] = ''
+          player_obj["team"] = ''
+          player_obj["position"] = ''
+        else:
+          # Draft is complete
+          player_obj["name"] = player_info[0][:-4] #Remove team
+          player_obj["team"] = player_info[0][-3:] #Remove player name
+          player_obj["position"] = player_info[1]
 
         draft.append(player_obj)
 
