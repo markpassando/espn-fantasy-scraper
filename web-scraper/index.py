@@ -98,9 +98,10 @@ class ESPNWebScraper:
       return False
   
   def getDraftRecap(self):
-    print('INFO - Attempting to Draft Recap Page')
-    self.browser.get(f"{self.BASE_URL}draftrecap?leagueId={self.LEAGUE_ID}")
     try:
+        print('INFO - Attempting to Draft Recap Page')
+        self.checkIsBrowserOpen()
+        self.browser.get(f"{self.BASE_URL}draftrecap?leagueId={self.LEAGUE_ID}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
@@ -145,8 +146,8 @@ class ESPNWebScraper:
 
   def getLeagueStandings(self):
     try:
-        self.checkIsBrowserOpen()
         print('INFO - Attempting to Crawl League Standings Page')
+        self.checkIsBrowserOpen()
         self.browser.get(f"{self.BASE_URL}standings?leagueId={self.LEAGUE_ID}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
         if self.checkIfAuthRequired():
@@ -212,9 +213,10 @@ class ESPNWebScraper:
         print(f"ERROR - {e}")
 
   def getRoster(self, team_id):
-    print(f"INFO - Attempting crawl to Roster Page for team_id '{team_id}'")
-    self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
     try:
+        print(f"INFO - Attempting crawl to Roster Page for team_id '{team_id}'")
+        self.checkIsBrowserOpen()
+        self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
@@ -249,9 +251,10 @@ class ESPNWebScraper:
         self.closeBrowser()
 
   def getAllRosters(self):
-    print('INFO - Attempting crawl to All Rosters Page')
-    self.browser.get(f"{self.BASE_URL}rosters?leagueId={self.LEAGUE_ID}")
     try:
+        print('INFO - Attempting crawl to All Rosters Page')
+        self.checkIsBrowserOpen()
+        self.browser.get(f"{self.BASE_URL}rosters?leagueId={self.LEAGUE_ID}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
@@ -281,9 +284,10 @@ class ESPNWebScraper:
         print(f"ERROR - {e}")
 
   def getWeekScores(self):
-    print('INFO - Attempting to Crawl League Scoreboard Page')
-    self.browser.get(f"{self.BASE_URL}scoreboard?leagueId={self.LEAGUE_ID}&matchupPeriodId=1")
     try:
+        print('INFO - Attempting to Crawl League Scoreboard Page')
+        self.checkIsBrowserOpen()
+        self.browser.get(f"{self.BASE_URL}scoreboard?leagueId={self.LEAGUE_ID}&matchupPeriodId=1")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
