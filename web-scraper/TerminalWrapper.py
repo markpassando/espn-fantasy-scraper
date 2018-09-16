@@ -101,7 +101,7 @@ class TerminalWrapper:
 
   def getTransactionCount(self):
     start_time = datetime.datetime.now()
-    scores = self.ESPNWebScraper.getTransactionCount()
+    transactions = self.ESPNWebScraper.getTransactionCount()
     self.json_output(transactions, 'transactions')
     end_time = datetime.datetime.now()
     self.timeScrape(start_time, end_time, 'Transactions Count')
@@ -109,10 +109,10 @@ class TerminalWrapper:
 # Start TerminalWrapper
 start_time = datetime.datetime.now()
 terminalwrapper = TerminalWrapper(LEAGUE_ID,USERNAME, PASSWORD, OUTPUT_SETTINGS)
-terminalwrapper.getLeagueStandings()
-terminalwrapper.getDraftRecap()
-terminalwrapper.getWeekScores()
-terminalwrapper.getAllRosters()
+# terminalwrapper.getLeagueStandings()
+# terminalwrapper.getDraftRecap()
+# terminalwrapper.getWeekScores()
+# terminalwrapper.getAllRosters()
 terminalwrapper.getTransactionCount()
 terminalwrapper.closeBrowser()
 end_time = datetime.datetime.now()
