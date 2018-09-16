@@ -374,6 +374,52 @@ class ESPNWebScraper:
         print(f"ERROR - {e}")
         return self.returnErrorJson(e, 500)
 
+
+  def getTransactionCount(self):
+    try:
+        print('INFO - Attempting to Crawl Transaction Count Page')
+        self.checkIsBrowserOpen()
+        self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}")
+        WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
+        if self.checkIfAuthRequired():
+          self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}")
+          WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Transaction Counter']")))
+
+        teams_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--sm Table2__odd']")
+        header = self.browser.find_elements_by_xpath("//tr[@class='Table2__header-row Table2__tr Table2__even']")
+        transaction_count_categories = header[0].text.split('\n')
+        amount_of_teams = int(len(teams_elements))
+
+        teams_names = teams_elements[0:amount_of_teams]
+        transaction_count = teams_elements[0:amount_of_teams]
+        teams = {}
+
+        # # Build teams dictionary with transaction counts
+        for transactions in teams_names:
+          team_vals = team.text.split('\n')
+          transactions[team_vals[0]] = {
+            "name": team_vals[0],
+            "trade": int(team_vals[1]),
+            "acq": int(team_vals[2]),
+            "drop": int(team_vals[3]),
+            "active": int(team_vals[4]),
+            "ir": int(team_vals[5]),
+            # "transaction_count_totals": {}
+          }
+
+        print('INFO - SUCCESS! - League Standings and Season Stats have been scraped.\n')
+        return transactions
+    except TimeoutException as e:
+        error_msg = "ERROR - Timed out waiting for page to load"
+        print(error_msg)
+        self.closeBrowser()
+        return self.returnErrorJson(error_msg, 504)
+    except Exception as e:
+        self.closeBrowser()
+        print(f"ERROR - {e}")
+        return self.returnErrorJson(e, 500)
+
+
 # Use for Local Testing
 # start_time = datetime.datetime.now()
 # espn_scraper = ESPNWebScraper("6059", "user", "pw")
