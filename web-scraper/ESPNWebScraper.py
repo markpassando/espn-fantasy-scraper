@@ -388,12 +388,12 @@ class ESPNWebScraper:
         teams_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--sm Table2__odd']")
         amount_of_teams = int(len(teams_elements))
         teams_names = teams_elements[0:amount_of_teams]
-        teams = {}
+        teams_transactions = {}
 
         # # Build teams dictionary with transaction counts
-        for team in teams_names:
+        for teams_transaction in teams_transactions:
           team_vals = team.text.split('\n')
-          teams[team_vals[0]] = {
+          teams_transactions[team_vals[0]] = {
             "trade": int(team_vals[1]),
             "acq": int(team_vals[2]),
             "drop": int(team_vals[3]),
@@ -402,7 +402,7 @@ class ESPNWebScraper:
           }
 
         print('INFO - SUCCESS! - League Standings and Season Stats have been scraped.\n')
-        return teams
+        return teams_transactions
     except TimeoutException as e:
         error_msg = "ERROR - Timed out waiting for page to load"
         print(error_msg)
