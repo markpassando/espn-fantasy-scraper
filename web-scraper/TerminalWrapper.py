@@ -101,8 +101,8 @@ class TerminalWrapper:
 
   def getTransactionCount(self):
     start_time = datetime.datetime.now()
-    transactions = self.ESPNWebScraper.getTransactionCount()
-    self.json_output(transactions, 'transactions')
+    teams_transactions = self.ESPNWebScraper.getTransactionCount()
+    self.json_output(teams_transactions, 'transactions')
     end_time = datetime.datetime.now()
     self.timeScrape(start_time, end_time, 'Transactions Count')
 
