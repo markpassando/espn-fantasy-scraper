@@ -55,3 +55,6 @@ Default settings will scrape public league "6059" and create a json file of scra
 This will scrape the league `2345` with user `mark`, print to console and create a json file.
 
 Please ensure that your password is correct. If your league setting is public, you do not have to pass any credentials.
+
+## License
+[GNU General Public License v3.0](LICENSE.md)
