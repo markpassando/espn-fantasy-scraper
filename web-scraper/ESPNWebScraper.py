@@ -18,19 +18,27 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 
 class ESPNWebScraper:
-  def __init__(self, league_id, username, password):
+  def __init__(self, options):
+    self.__dict__ = options
     self.BASE_URL = "http://fantasy.espn.com/basketball/league/"
     self.ROSTER_URL = "http://fantasy.espn.com/basketball/"
     self.TIMEOUT = 30
-    self.LEAGUE_ID = league_id
-    self.USERNAME = username
-    self.PASSWORD = password
     self.is_browser_open = False
+
+    if 'league_id' in options:
+      self.LEAGUE_ID = options['league_id']
+    else:
+      raise TypeError("'league_id' is a required field!")
+
+    self.USERNAME = '' if not 'username' in options else options['username']
+    self.PASSWORD = '' if not 'password' in options else options['password']
+    self.headless = False if not 'headless' in options else options['headless']
     self.startBrowser()
     
   def startBrowser(self):
     chrome_options = webdriver.ChromeOptions()
-    # chrome_options.add_argument('--headless')
+    if self.headless:
+      chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     self.browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options,
       service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
@@ -376,7 +384,13 @@ class ESPNWebScraper:
 
 # Use for Local Testing
 # start_time = datetime.datetime.now()
-# espn_scraper = ESPNWebScraper("6059", "user", "pw")
+# options = {
+#   'league_id': '6059',
+#   'username': 'user',
+#   'password': 'pw',
+#   'headless': False
+# }
+# espn_scraper = ESPNWebScraper(options)
 # rosters = espn_scraper.getAllRosters()
 # standings = espn_scraper.getLeagueStandings()
 # scores = espn_scraper.getWeekScores()
@@ -384,4 +398,3 @@ class ESPNWebScraper:
 # espn_scraper.closeBrowser()
 # end_time = datetime.datetime.now()
 # print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
-# print('debugger')
