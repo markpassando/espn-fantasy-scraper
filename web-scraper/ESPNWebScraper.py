@@ -382,7 +382,6 @@ class ESPNWebScraper:
         print(f"ERROR - {e}")
         return self.returnErrorJson(e, 500)
 
-
   def getTransactionCount(self):
     try:
         print('INFO - Attempting to Crawl Transaction Count Page')
@@ -393,15 +392,13 @@ class ESPNWebScraper:
           self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Transaction Counter']")))
 
-        teams_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--sm Table2__odd']")
-        amount_of_teams = int(len(teams_elements))
-        teams_names = teams_elements[0:amount_of_teams]
-        teams_transactions = {}
+        team_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--sm Table2__odd']")
+        transactions = {}
 
-        # # Build teams dictionary with transaction counts
-        for teams_transaction in teams_transactions:
+        # Build teams dictionary with transaction counts
+        for team in team_elements:
           team_vals = team.text.split('\n')
-          teams_transactions[team_vals[0]] = {
+          transactions[team_vals[0]] = {
             "trade": int(team_vals[1]),
             "acq": int(team_vals[2]),
             "drop": int(team_vals[3]),
@@ -409,8 +406,8 @@ class ESPNWebScraper:
             "ir": int(team_vals[5])
           }
 
-        print('INFO - SUCCESS! - League Standings and Season Stats have been scraped.\n')
-        return teams_transactions
+        print('INFO - SUCCESS! - League Transactions have been scraped.\n')
+        return transactions
     except TimeoutException as e:
         error_msg = "ERROR - Timed out waiting for page to load"
         print(error_msg)
