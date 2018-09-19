@@ -108,6 +108,13 @@ class TerminalWrapper:
     end_time = datetime.datetime.now()
     self.timeScrape(start_time, end_time, 'All Weekly Scores')
 
+  def getTransactionCount(self):
+    start_time = datetime.datetime.now()
+    teams_transactions = self.ESPNWebScraper.getTransactionCount()
+    self.json_output(teams_transactions, 'transactions')
+    end_time = datetime.datetime.now()
+    self.timeScrape(start_time, end_time, 'Transactions Count')
+
 # Start TerminalWrapper
 options = {
   'league_id': LEAGUE_ID,
@@ -121,6 +128,7 @@ if HEADLESS:
 start_time = datetime.datetime.now()
 terminalwrapper = TerminalWrapper(options)
 terminalwrapper.getLeagueStandings()
+terminalwrapper.getTransactionCount()
 terminalwrapper.getDraftRecap()
 terminalwrapper.getWeekScores()
 terminalwrapper.getAllRosters()
