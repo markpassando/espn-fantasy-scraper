@@ -1,6 +1,6 @@
 """
 Usage:
-  index.py [-i self.LEAGUE_ID -u USERNAME -p PASSWORD --file --print]
+  index.py [-i self.LEAGUE_ID -u USERNAME -p PASSWORD --file --print --headless]
 
 Options:
   -i --league_id=<league_id>     ESPN League ID [default: 6059].
@@ -8,6 +8,7 @@ Options:
   -p --password=<password>       ESPN Login Password [default: ].
   --file                         Setting to create JSON file [default: false].
   --print                        Setting print data to console [default: false].
+  --headless                     Set Chrome browser to headless setting
 
 """
 import os
@@ -30,6 +31,7 @@ if __name__ == '__main__':
 LEAGUE_ID = arguments['--league_id']
 USERNAME = arguments['--username']
 PASSWORD = arguments['--password']
+HEADLESS = arguments['--headless']
 OUTPUT_SETTINGS = {
   "file": arguments['--file'],
   "print": arguments['--print']
@@ -44,12 +46,19 @@ print(f"PASSWORD was set to  '{PASSWORD}'")
 print("\n")
 
 class TerminalWrapper:
-  def __init__(self, league_id, username, password, output_settings):
-    self.LEAGUE_ID = league_id
-    self.USERNAME = username
-    self.PASSWORD = password
-    self.OUTPUT_SETTINGS = output_settings
-    self.ESPNWebScraper = ESPNWebScraper(self.LEAGUE_ID, self.USERNAME, self.PASSWORD)
+  def __init__(self, options):
+    self.__dict__ = options
+    self.OUTPUT_SETTINGS = options['output_settings']
+
+    terminal_options = {
+      'league_id': '6059' if not 'league_id' in options else options['league_id'],
+      'username': '' if not 'username' in options else options['username'],
+      'password': '' if not 'password' in options else options['password']
+    }
+
+    if 'headless' in options:
+      terminal_options['headless'] = options['headless']
+    self.ESPNWebScraper = ESPNWebScraper(terminal_options)
 
   def closeBrowser(self):
     self.ESPNWebScraper.closeBrowser()
@@ -107,13 +116,22 @@ class TerminalWrapper:
     self.timeScrape(start_time, end_time, 'Transactions Count')
 
 # Start TerminalWrapper
+options = {
+  'league_id': LEAGUE_ID,
+  'username': USERNAME,
+  'password': PASSWORD,
+  'output_settings': OUTPUT_SETTINGS
+}
+
+if HEADLESS:
+  options['headless'] = True
 start_time = datetime.datetime.now()
-terminalwrapper = TerminalWrapper(LEAGUE_ID,USERNAME, PASSWORD, OUTPUT_SETTINGS)
-# terminalwrapper.getLeagueStandings()
-# terminalwrapper.getDraftRecap()
-# terminalwrapper.getWeekScores()
-# terminalwrapper.getAllRosters()
+terminalwrapper = TerminalWrapper(options)
+terminalwrapper.getLeagueStandings()
 terminalwrapper.getTransactionCount()
+terminalwrapper.getDraftRecap()
+terminalwrapper.getWeekScores()
+terminalwrapper.getAllRosters()
 terminalwrapper.closeBrowser()
 end_time = datetime.datetime.now()
 print('<---------------> TerminalWrapper COMPLETE <--------------->')
