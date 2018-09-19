@@ -18,19 +18,27 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 
 class ESPNWebScraper:
-  def __init__(self, league_id, username, password):
+  def __init__(self, options):
+    self.__dict__ = options
     self.BASE_URL = "http://fantasy.espn.com/basketball/league/"
     self.ROSTER_URL = "http://fantasy.espn.com/basketball/"
     self.TIMEOUT = 30
-    self.LEAGUE_ID = league_id
-    self.USERNAME = username
-    self.PASSWORD = password
     self.is_browser_open = False
+
+    if 'league_id' in options:
+      self.LEAGUE_ID = options['league_id']
+    else:
+      raise TypeError("'league_id' is a required field!")
+
+    self.USERNAME = '' if not 'username' in options else options['username']
+    self.PASSWORD = '' if not 'password' in options else options['password']
+    self.headless = False if not 'headless' in options else options['headless']
     self.startBrowser()
     
   def startBrowser(self):
     chrome_options = webdriver.ChromeOptions()
-    # chrome_options.add_argument('--headless')
+    if self.headless:
+      chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     self.browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options,
       service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
@@ -374,7 +382,6 @@ class ESPNWebScraper:
         print(f"ERROR - {e}")
         return self.returnErrorJson(e, 500)
 
-
   def getTransactionCount(self):
     try:
         print('INFO - Attempting to Crawl Transaction Count Page')
@@ -385,15 +392,13 @@ class ESPNWebScraper:
           self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Transaction Counter']")))
 
-        teams_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--sm Table2__odd']")
-        amount_of_teams = int(len(teams_elements))
-        teams_names = teams_elements[0:amount_of_teams]
-        teams_transactions = {}
+        team_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--sm Table2__odd']")
+        transactions = {}
 
-        # # Build teams dictionary with transaction counts
-        for teams_transaction in teams_transactions:
+        # Build teams dictionary with transaction counts
+        for team in team_elements:
           team_vals = team.text.split('\n')
-          teams_transactions[team_vals[0]] = {
+          transactions[team_vals[0]] = {
             "trade": int(team_vals[1]),
             "acq": int(team_vals[2]),
             "drop": int(team_vals[3]),
@@ -401,8 +406,8 @@ class ESPNWebScraper:
             "ir": int(team_vals[5])
           }
 
-        print('INFO - SUCCESS! - League Standings and Season Stats have been scraped.\n')
-        return teams_transactions
+        print('INFO - SUCCESS! - League Transactions have been scraped.\n')
+        return transactions
     except TimeoutException as e:
         error_msg = "ERROR - Timed out waiting for page to load"
         print(error_msg)
@@ -416,7 +421,13 @@ class ESPNWebScraper:
 
 # Use for Local Testing
 # start_time = datetime.datetime.now()
-# espn_scraper = ESPNWebScraper("6059", "user", "pw")
+# options = {
+#   'league_id': '6059',
+#   'username': 'user',
+#   'password': 'pw',
+#   'headless': False
+# }
+# espn_scraper = ESPNWebScraper(options)
 # rosters = espn_scraper.getAllRosters()
 # standings = espn_scraper.getLeagueStandings()
 # scores = espn_scraper.getWeekScores()
@@ -424,4 +435,3 @@ class ESPNWebScraper:
 # espn_scraper.closeBrowser()
 # end_time = datetime.datetime.now()
 # print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
-# print('debugger')
