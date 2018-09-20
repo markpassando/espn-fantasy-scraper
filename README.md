@@ -9,7 +9,7 @@ ESPN Fantasy Scraper is a web scraper that captures all possible useful stats fr
 - Must be a Categories League (some endpoints support Points)
 - Must have an even amount of teams (Some endpoints support odd number of teams)
 
-## Environment Setup (mac) - Phase 1: 
+## Environment Setup (mac): 
 - **Python**
   - Install Python 3.6X, this project uses Python 3.6.5
   - Install virtualenv - `pip3 install virtualenv`
