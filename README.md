@@ -3,7 +3,7 @@
 ESPN Fantasy Scraper is a web scraper that captures all possible useful stats from a NBA ESPN Fantasy League. It returns normalized JSON data that is accessible using a team name as a key. No sensitive data is scraped. 
 
 ## Prerequisites
-- Phase 1 is intended to work locally on a mac or linux.
+- Phase 1 is intended to work locally on mac or linux.
 - Must be an ESPN Fantasy League
 - Must be a Head to Head League (some endpoints support Roto.)
 - Must be a Categories League (some endpoints support Points)
