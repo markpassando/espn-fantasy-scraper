@@ -25,7 +25,7 @@ Phase 1 is intended to work locally on a mac.
   - Must be an ESPN Fantasy League
   - Must be a Head to Head League (some endpoints support Roto.)
   - Must be a Categories League (some endpoints support Points)
-  - Must have an even amount of teams (Some endpoints support odd teams)
+  - Must have an even amount of teams (Some endpoints support odd number of teams)
 - **Pre-reqs for Python**
   - Install Python 3.6X, this project uses Python 3.6.5
   - Install virtualenv - `pip install virtualenv`
