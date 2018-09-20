@@ -20,6 +20,20 @@ ESPN Fantasy Scraper is a web scraper that captures all possible useful stats fr
   - Download and install browser drivers (currently using Chrome) -https://sites.google.com/a/chromium.org/chromedriver/downloads
   - Place driver in /usr/local/bin
 
+### Quick Demo Usage
+
+For a Quick Demo, default settings will scrape public league "6059" and create json files of scraped data.
+Within the web-scraper directory run:
+`python TerminalWrapper.py`
+
+### Real TerminalWrapper Usage
+ Within the web-scraper directory run:
+`python TerminalWrapper.py --league_id 2345 --username mark --password LeBronJames! --file --print --headless`
+
+This will scrape the league `2345` with user `mark`, print to console and create a json file. 
+
+Please ensure that your password is correct. If your league setting is public, you do not have to pass any credentials.
+
 ### Optional Arguments
 - `-l` or `--league_id` = Add your league ID
 - `-u` or `--username` = Add your username or email to ESPN Fantasy
@@ -27,20 +41,6 @@ ESPN Fantasy Scraper is a web scraper that captures all possible useful stats fr
 - `--file` - Creates a json file with scraped data. (Will be default if neither `--file` or `--print` are passed)
 - `--print` - Prints the return scraped data.
 - `--headless` - Uses a Headless Chromebrowser (Default is a regular browser)
-
-### Real TerminalWrapper Usage
- Within the web-scraper directory run :
-`python TerminalWrapper.py --league_id 2345 --username mark --password LeBronJames! --file --print --headless`
-
-This will scrape the league `2345` with user `mark`, print to console and create a json file. 
-
-Please ensure that your password is correct. If your league setting is public, you do not have to pass any credentials.
-
-### Quick Demo Usage
-
-For a Quick Demo, Default settings will scrape public league "6059" and create json files of scraped data.
-
-`python TerminalWrapper.py`
 
 
 ## Phases
