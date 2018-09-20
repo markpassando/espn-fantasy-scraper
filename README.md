@@ -44,7 +44,7 @@ Phase 1 is intended to work locally on a mac.
 - The crawling script is located in `web-scraper/`, `cd web-scraper`
 
 ### Optional Arguments
-- `-i` or `--league_id` = Add your league ID
+- `-l` or `--league_id` = Add your league ID
 - `-u` or `--username` = Add your username or email to ESPN Fantasy
 - `-p` or `--password` = Add your password to ESPN Fantasy
 - `--file` - Creates a json file with scraped data. (Will be default if neither `--file` or `--print` are passed)
