@@ -13,13 +13,11 @@ ESPN Fantasy Scraper is a web scraper that captures all possible useful stats fr
 - **Python**
   - Install Python 3.6X, this project uses Python 3.6.5
   - Install virtualenv - `pip3 install virtualenv`
-  - Inside the root directory of this application.
-  - Create virtualenv - `python3 -m venv env`
+  - Inside the root directory of this application, create virtualenv - `python3 -m venv env`
   - Activate the virtualenv - `source env/bin/activate`
   - Install dependecies - `pip install -r requirements.txt`
 - **Chromedriver**
-  - Download and install browser drivers, currently using Chrome.
-  - Chrome - https://sites.google.com/a/chromium.org/chromedriver/downloads
+  - Download and install browser drivers (currently using Chrome) -https://sites.google.com/a/chromium.org/chromedriver/downloads
   - Place driver in /usr/local/bin
 
 ### Optional Arguments
