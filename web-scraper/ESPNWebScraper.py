@@ -202,7 +202,12 @@ class ESPNWebScraper:
           for j in range(len(league_categories)):
             category = strip_special_chars(league_categories[j])
             current_season_stats[category] = category_stat_values[j]
-            current_season_stats['transactions'] = int(transaction_stats[j].text.split('\n')[1])
+
+            try:
+              current_season_stats['transactions'] = int(transaction_stats[j].text.split('\n')[1])
+            except IndexError as e:
+              # New leagues will not have the "LAST" column, no games have started
+              current_season_stats['transactions'] = int(transaction_stats[j].text.split('\n')[0])
 
           # Assign it back to the team
           teams[current_team]["season_stats"] = current_season_stats
@@ -337,8 +342,8 @@ class ESPNWebScraper:
             team_name = teams_elements[i].text
             team_number = i + 1
 
-            if len(cats_score_elements) == 0:
-              # Week has not been played yet
+            if len(cats_score_elements) == 0 or cats_score_elements[i].text == '':
+              # Week has not been played yet 
               cats_score = [0,0,0]
             else:
               cats_score = cats_score_elements[i].text.split('-')
