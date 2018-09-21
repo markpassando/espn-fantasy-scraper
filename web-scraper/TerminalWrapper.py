@@ -3,7 +3,7 @@ Usage:
   index.py [-i self.LEAGUE_ID -u USERNAME -p PASSWORD --file --print --headless]
 
 Options:
-  -i --league_id=<league_id>     ESPN League ID [default: 6059].
+  -l --league_id=<league_id>     ESPN League ID [default: 6059].
   -u --username=<username>       ESPN Login Username [default: ].
   -p --password=<password>       ESPN Login Password [default: ].
   --file                         Setting to create JSON file [default: false].
