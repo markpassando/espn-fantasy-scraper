@@ -52,7 +52,6 @@ class TerminalWrapper:
 
     terminal_options = {
       'league_id': '6059' if not 'league_id' in options else options['league_id'],
-      'year': '2018' if not 'year' in options else options['year'],
       'username': '' if not 'username' in options else options['username'],
       'password': '' if not 'password' in options else options['password']
     }
@@ -129,11 +128,11 @@ if HEADLESS:
 start_time = datetime.datetime.now()
 terminalwrapper = TerminalWrapper(options)
 terminalwrapper.getLeagueStandings()
-# terminalwrapper.getTransactionCount()
-# terminalwrapper.getDraftRecap()
-# terminalwrapper.getWeekScores()
-# terminalwrapper.getAllRosters()
-# terminalwrapper.closeBrowser()
+terminalwrapper.getTransactionCount()
+terminalwrapper.getDraftRecap()
+terminalwrapper.getWeekScores()
+terminalwrapper.getAllRosters()
+terminalwrapper.closeBrowser()
 end_time = datetime.datetime.now()
 print('<---------------> TerminalWrapper COMPLETE <--------------->')
 print(f"Total Time: {str(end_time - start_time)}")
