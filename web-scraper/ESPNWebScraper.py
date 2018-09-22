@@ -33,6 +33,7 @@ class ESPNWebScraper:
     self.USERNAME = '' if not 'username' in options else options['username']
     self.PASSWORD = '' if not 'password' in options else options['password']
     self.headless = False if not 'headless' in options else options['headless']
+    self.YEAR = '' if not 'year' in options else (f"&seasonId={options['year']}")
     self.startBrowser()
     
   def startBrowser(self):
@@ -102,11 +103,11 @@ class ESPNWebScraper:
     try:
         print('INFO - Attempting to Draft Recap Page')
         self.checkIsBrowserOpen()
-        self.browser.get(f"{self.BASE_URL}draftrecap?leagueId={self.LEAGUE_ID}")
+        self.browser.get(f"{self.BASE_URL}draftrecap?leagueId={self.LEAGUE_ID}{self.YEAR}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
-          self.browser.get(f"{self.BASE_URL}draftrecap?leagueId={self.LEAGUE_ID}")
+          self.browser.get(f"{self.BASE_URL}draftrecap?leagueId={self.LEAGUE_ID}{self.YEAR}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='Table2__Title']")))
 
         round_elements = self.browser.find_elements_by_xpath("//div[@class='Table2__Title']")
@@ -152,10 +153,10 @@ class ESPNWebScraper:
     try:
         print('INFO - Attempting to Crawl League Standings Page')
         self.checkIsBrowserOpen()
-        self.browser.get(f"{self.BASE_URL}standings?leagueId={self.LEAGUE_ID}")
+        self.browser.get(f"{self.BASE_URL}standings?leagueId={self.LEAGUE_ID}{self.YEAR}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
         if self.checkIfAuthRequired():
-          self.browser.get(f"{self.BASE_URL}standings?leagueId={self.LEAGUE_ID}")
+          self.browser.get(f"{self.BASE_URL}standings?leagueId={self.LEAGUE_ID}{self.YEAR}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Standings']")))
 
         teams_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--md Table2__odd']")
@@ -229,11 +230,11 @@ class ESPNWebScraper:
     try:
         print(f"INFO - Attempting crawl to Roster Page for team_id '{team_id}'")
         self.checkIsBrowserOpen()
-        self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
+        self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}{self.YEAR}&teamId={team_id}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
-          self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}&teamId={team_id}")
+          self.browser.get(f"{self.ROSTER_URL}team?leagueId={self.LEAGUE_ID}{self.YEAR}&teamId={team_id}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")))
 
         player_elements = self.browser.find_elements_by_xpath("//div[@class='jsx-2947067311 player-column-table2 justify-start pa0 flex items-center player-info']")
@@ -267,11 +268,11 @@ class ESPNWebScraper:
     try:
         print('INFO - Attempting crawl to All Rosters Page')
         self.checkIsBrowserOpen()
-        self.browser.get(f"{self.BASE_URL}rosters?leagueId={self.LEAGUE_ID}")
+        self.browser.get(f"{self.BASE_URL}rosters?leagueId={self.LEAGUE_ID}{self.YEAR}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
-          self.browser.get(f"{self.BASE_URL}rosters?leagueId={self.LEAGUE_ID}")
+          self.browser.get(f"{self.BASE_URL}rosters?leagueId={self.LEAGUE_ID}{self.YEAR}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='btn roster-btn btn--alt']")))
 
         team_links_elements = self.browser.find_elements_by_xpath("//a[@class='btn roster-btn btn--alt']")
@@ -303,11 +304,11 @@ class ESPNWebScraper:
     try:
         print('INFO - Attempting to Crawl League Scoreboard Page')
         self.checkIsBrowserOpen()
-        self.browser.get(f"{self.BASE_URL}scoreboard?leagueId={self.LEAGUE_ID}&matchupPeriodId=1")
+        self.browser.get(f"{self.BASE_URL}scoreboard?leagueId={self.LEAGUE_ID}{self.YEAR}&matchupPeriodId=1")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
 
         if self.checkIfAuthRequired():
-          self.browser.get(f"{self.BASE_URL}scoreboard?leagueId={self.LEAGUE_ID}&matchupPeriodId=1")
+          self.browser.get(f"{self.BASE_URL}scoreboard?leagueId={self.LEAGUE_ID}{self.YEAR}&matchupPeriodId=1")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Scoreboard']")))
 
         week_dropdown_selector = self.browser.find_elements_by_class_name('dropdown__select')[0]
@@ -391,10 +392,10 @@ class ESPNWebScraper:
     try:
         print('INFO - Attempting to Crawl Transaction Count Page')
         self.checkIsBrowserOpen()
-        self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}")
+        self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}{self.YEAR}")
         WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//a[@class='Nav__Primary__Branding Nav__Primary__Branding--espn']")))
         if self.checkIfAuthRequired():
-          self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}")
+          self.browser.get(f"{self.BASE_URL}transactioncounter?leagueId={self.LEAGUE_ID}{self.YEAR}")
           WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//h1[text()='Transaction Counter']")))
 
         team_elements = self.browser.find_elements_by_xpath("//tr[@class='Table2__tr Table2__tr--sm Table2__odd']")
@@ -430,13 +431,15 @@ class ESPNWebScraper:
 #   'league_id': '6059',
 #   'username': 'user',
 #   'password': 'pw',
-#   'headless': False
+#   'headless': False,
+#   'year': '2018'
 # }
 # espn_scraper = ESPNWebScraper(options)
-# rosters = espn_scraper.getAllRosters()
 # standings = espn_scraper.getLeagueStandings()
 # scores = espn_scraper.getWeekScores()
 # draft_recap = espn_scraper.getDraftRecap()
+# rosters = espn_scraper.getAllRosters()
+# transactions = espn_scraper.getTransactionCount()
 # espn_scraper.closeBrowser()
 # end_time = datetime.datetime.now()
 # print(f"Crawl Completed: Total Time {str(end_time - start_time)}")
