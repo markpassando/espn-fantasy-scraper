@@ -3,8 +3,6 @@ import time
 import math
 import datetime
 import json
-from sys import exit
-
 
 # Local Dependencies
 from utils import (
@@ -74,38 +72,37 @@ class ESPNWebScraper:
       login_button = self.browser.find_element_by_link_text('You need to login')
 
       if login_button.text == 'You need to login':
-        print(f"INFO - Attempting to Log In with User: '{self.USERNAME}''")
+        print(f"INFO - Attempting to Log In with User: '{self.USERNAME}'")
+
+        # Wait for iframe to load and switch to it
+        WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//iframe[@id='disneyid-iframe']")))
+        self.browser.switch_to.frame(self.browser.find_element_by_id('disneyid-iframe'))
+        WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//input[@type='email']")))
+
+        # Get elements
+        email_input_element = self.browser.find_elements_by_xpath("//input[@type='email']")[0]
+        password_input_element = self.browser.find_elements_by_xpath("//input[@type='password']")[0]
+        login_button_element = self.browser.find_elements_by_xpath("//button[text()='Log In']")[0]
+
+        # Attempt Login
+        email_input_element.send_keys(self.USERNAME)
+        password_input_element.send_keys(self.PASSWORD)
+        login_button_element.click()
+
+        # Check Login
+        time.sleep(3)
         try:
-          # Wait for iframe to load and switch to it
-          WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//iframe[@id='disneyid-iframe']")))
-          self.browser.switch_to.frame(self.browser.find_element_by_id('disneyid-iframe'))
-          WebDriverWait(self.browser, self.TIMEOUT).until(EC.visibility_of_element_located((By.XPATH, "//input[@type='email']")))
+          self.browser.find_element_by_xpath("//div[@class='banner message-error message ng-isolate-scope state-active']")
+          print("ERROR - Username or Password is Incorrect")
+          self.closeBrowser()
+          raise ValueError("Username or Password is Incorrect")
+        except NoSuchElementException as e:
+          print(f"INFO - Successfully logged in for user '{self.USERNAME}'!")
 
-          # Get elements
-          email_input_element = self.browser.find_elements_by_xpath("//input[@type='email']")[0]
-          password_input_element = self.browser.find_elements_by_xpath("//input[@type='password']")[0]
-          login_button_element = self.browser.find_elements_by_xpath("//button[text()='Log In']")[0]
+        # Needs to sleep, logging in too fast is causing ESPN to ask to log in again
+        time.sleep(3)
+        return True
 
-          # Attempt Login
-          email_input_element.send_keys(self.USERNAME)
-          password_input_element.send_keys(self.PASSWORD)
-          login_button_element.click()
-
-          # Check Login
-          time.sleep(3)
-          try:
-            self.browser.find_element_by_xpath("//div[@class='banner message-error message ng-isolate-scope state-active']")
-            print("Incorrect Username or Password, exiting")
-            self.closeBrowser()
-            exit(0)
-          except Exception as e:
-            print(f"INFO - Successfully logged in for user '{self.USERNAME}'!")
-
-          # Needs to sleep, logging in too fast is causing ESPN to ask to log in again
-          time.sleep(3)
-          return True
-        except Exception as e:
-          print(f"ERROR - {e}")
     except NoSuchElementException as e:
       print('INFO - User does not require Auth')
       return False
@@ -235,7 +232,6 @@ class ESPNWebScraper:
         self.closeBrowser()
         print(f"ERROR - {e}")
         return self.returnErrorJson(e, 500)
-
 
   def getRoster(self, team_id):
     try:
