@@ -88,7 +88,15 @@ class ESPNWebScraper:
           email_input_element.send_keys(self.USERNAME)
           password_input_element.send_keys(self.PASSWORD)
           login_button_element.click()
-          print(f"INFO - Successfully logged in for user '{self.USERNAME}'!")
+
+          # Check Login
+          time.sleep(3)
+          try:
+            self.browser.find_element_by_xpath("//div[text()='Enter your username or email address and password.']")
+            print("Incorrect Username or Password, exiting")
+            self.closeBrowser()
+          except Exception as e:
+            print(f"INFO - Successfully logged in for user '{self.USERNAME}'!")
 
           # Needs to sleep, logging in too fast is causing ESPN to ask to log in again
           time.sleep(3)
