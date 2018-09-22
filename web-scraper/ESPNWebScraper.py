@@ -3,6 +3,8 @@ import time
 import math
 import datetime
 import json
+from sys import exit
+
 
 # Local Dependencies
 from utils import (
@@ -95,6 +97,7 @@ class ESPNWebScraper:
             self.browser.find_element_by_xpath("//div[text()='Enter your username or email address and password.']")
             print("Incorrect Username or Password, exiting")
             self.closeBrowser()
+            exit(0)
           except Exception as e:
             print(f"INFO - Successfully logged in for user '{self.USERNAME}'!")
 
