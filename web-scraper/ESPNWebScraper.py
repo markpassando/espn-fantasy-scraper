@@ -94,7 +94,7 @@ class ESPNWebScraper:
           # Check Login
           time.sleep(3)
           try:
-            self.browser.find_element_by_xpath("//div[text()='Enter your username or email address and password.']")
+            self.browser.find_element_by_xpath("//div[@class='banner message-error message ng-isolate-scope state-active']")
             print("Incorrect Username or Password, exiting")
             self.closeBrowser()
             exit(0)
