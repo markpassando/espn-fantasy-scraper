@@ -41,7 +41,7 @@ class ESPNWebScraper:
     if self.headless:
       chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
-    self.browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=chrome_options,
+    self.browser = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', options=chrome_options,
       service_args=['--verbose', '--log-path=/tmp/chromedriver.log'])
     self.is_browser_open = True
     print(f"INFO - browser webdriver Instance has been OPENED.")
