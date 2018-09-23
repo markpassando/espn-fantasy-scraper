@@ -70,3 +70,18 @@ def test_getDraftRecap(ScraperInstance):
     assert draft[8]['name'] == 'LeBron James', "Should be LeBron James"
     assert draft[8]['position'] == 'SF', "Should have proper player Position"
     assert draft[8]['team'] == 'LAL', "Should have proper Team"
+
+def test_getAllRosters(ScraperInstance):
+    rosters = ScraperInstance.getAllRosters()
+    ScraperInstance.closeBrowser()
+    assert len(rosters) == 12, "Should be 12 teams"
+    assert len(rosters['RIPPIN PIPPENS']) == 14, "Should have 14 players including IR slot"
+    assert rosters['RIPPIN PIPPENS'][3]['name'] == 'Kevin Durant', "Should be Kevin Durant"
+    assert rosters['RIPPIN PIPPENS'][3]['team'] == 'GS', "Should be Golden State"
+    KD_position = rosters['RIPPIN PIPPENS'][3]['position']
+    assert len(KD_position) == 2, "Kevin Durant should play 2 positions"
+    assert 'SF' in KD_position, "Kevin Durant should play SF"
+    assert 'PF' in KD_position, "Kevin Durant should play PF"
+    assert len(rosters['RIPPIN PIPPENS'][7]['position']), "Enes Kanter should play 1 position"
+    assert 'C' in rosters['RIPPIN PIPPENS'][7]['position'], "Kanter should play C"
+
