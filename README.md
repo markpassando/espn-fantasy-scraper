@@ -1,5 +1,5 @@
 # espn-fantasy-scraper
-### *Phase 1* - Version 1.0.0
+### *Phase 1* - Version 1.1.0
 ESPN Fantasy Scraper is a web scraper that captures all possible useful stats from a NBA ESPN Fantasy League. It returns normalized JSON data that is accessible using a team name as a key. No sensitive data is scraped. 
 
 ## Prerequisites
@@ -42,14 +42,23 @@ Please ensure that your password is correct. If your league setting is public, y
 - `--print` - Prints the return scraped data.
 - `--headless` - Uses a Headless Chromebrowser (Default is a regular browser)
 
+## Testing
+Each endpoint has integration tests using `pytest`. These tests will not work publicly, this requires specific data from a '2018' league which requires authentication. 
 
 ## Phases
-### Phase 1: (Complete 9/18/2018) 
+### Phase 1: (In Production) 
 - Dynamically scrape league data, accounts for varying league player size, scrapes any amount of categories.
 - The `ESPNWebScraper.py` are contained endpoints, the `TerminalWrapper` is an terminal interface to interact with the web scraper.
 - Can create JSON files or print the data to the console.
 - Supports regular browser and headless browser mode.
-### Phase 2: (In Progress) 
+#### Release History:
+- **v1.0.0 9/18/2018**
+  - Initial prod release of ESPNWebScraper with TerminalWrapper for usage.
+- **v1.1.0 9/23/2018**
+  - Add feature to check for bad user credentials, ESPNWebScraper will return a json formated error.
+  - Add feature to ESPNWebScraper to search league by the year of the season. This feature is not intended to be implemented for the Terminal Wrapper. It was required to have consistent Tests.
+  - Add Integration Testing with pytest, due to ESPN putting some league data behind auth, tests are for internal use only.
+### Phase 2: (Under Development) 
 - Build a Django REST API Wrapper to interact with the web scraper.
 ### Phase 3:
 - 1A: Build React Redux dashboard application for users to interact with league data.
