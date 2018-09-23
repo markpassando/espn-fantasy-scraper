@@ -1,5 +1,5 @@
 # espn-fantasy-scraper
-### *Phase 1* - Version 1.0.0
+### *Phase 1* - Version 1.1.0
 ESPN Fantasy Scraper is a web scraper that captures all possible useful stats from a NBA ESPN Fantasy League. It returns normalized JSON data that is accessible using a team name as a key. No sensitive data is scraped. 
 
 ## Prerequisites
@@ -42,6 +42,8 @@ Please ensure that your password is correct. If your league setting is public, y
 - `--print` - Prints the return scraped data.
 - `--headless` - Uses a Headless Chromebrowser (Default is a regular browser)
 
+## Testing
+Each endpoint has an end to end tests using `pytest`. These tests will not work publicly, this requires specific data from a '2018' league which requires authentication. 
 
 ## Phases
 ### Phase 1: (Complete 9/18/2018) 
