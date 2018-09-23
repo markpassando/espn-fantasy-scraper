@@ -85,3 +85,12 @@ def test_getAllRosters(ScraperInstance):
     assert len(rosters['RIPPIN PIPPENS'][7]['position']), "Enes Kanter should play 1 position"
     assert 'C' in rosters['RIPPIN PIPPENS'][7]['position'], "Kanter should play C"
 
+def test_getTransactionCount(ScraperInstance):
+    transactions = ScraperInstance.getTransactionCount()
+    ScraperInstance.closeBrowser()
+    assert len(transactions) == 12, "Should have 12 teams"
+    assert transactions['Charlie Sanders']['acq'] == 5, "Check acq"
+    assert transactions['Charlie Sanders']['active'] == 582, "Check active"
+    assert transactions['Charlie Sanders']['drop'] == 93, "Check drop"
+    assert transactions['Charlie Sanders']['ir'] == 7, "Check ir"
+    assert transactions['Charlie Sanders']['trade'] == 0, "Check trade"
