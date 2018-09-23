@@ -3,7 +3,7 @@ from ESPNWebScraper import ESPNWebScraper
 
 @pytest.fixture
 def ScraperInstance():
-    '''Returns a complete league Scrapper Instance'''
+    '''Returns a Scrapper Instance of a completed 2018 league'''
     options = {
       'league_id': '6059',
       'username': 'REQUIRES USERNAME',
@@ -57,3 +57,16 @@ def test_getWeekScores(ScraperInstance):
     assert scores['week23']['scores']['The Unibrowmber']['scores']['REB'] == '289', "Check REB"
     assert scores['week23']['scores']['The Unibrowmber']['scores']['STL'] == '51', "Check STL"
     assert scores['week23']['scores']['The Unibrowmber']['scores']['TO'] == '66', "Check TO"
+
+def test_getDraftRecap(ScraperInstance):
+    draft = ScraperInstance.getDraftRecap()
+    ScraperInstance.closeBrowser()
+    assert len(draft) == 156, "Should be 156 players drafted"
+    # Check the 9th Pick
+    # NOTE: This data changes with the player. Lebron Played on CLE in 2018 but displays lakers.
+    assert draft[8]['draft_position'] == 9, "Should be the 9th pick"
+    assert draft[8]['draft_round'] == 1, "Should be 1st round"
+    assert draft[8]['draft_team'] == 'Banana Boat', "Should have the correct team"
+    assert draft[8]['name'] == 'LeBron James', "Should be LeBron James"
+    assert draft[8]['position'] == 'SF', "Should have proper player Position"
+    assert draft[8]['team'] == 'LAL', "Should have proper Team"
