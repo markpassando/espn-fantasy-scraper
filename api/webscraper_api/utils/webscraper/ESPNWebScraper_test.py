@@ -6,8 +6,8 @@ def ScraperInstance(request):
     '''Returns a Scrapper Instance of a completed 2018 league'''
     options = {
       'league_id': '6059',
-      'username': 'mpassando',
-      'password': 'ScrapeMeBaby1MoreTime',
+      'username': '',
+      'password': '',
       'year': '2018',
       'headless': False
     }
