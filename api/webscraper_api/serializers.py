@@ -11,3 +11,4 @@ class ScrapeEndpointSerializer(serializers.Serializer):
         max_length=50, min_length=1, required=False)
     password = serializers.CharField(
         max_length=50, min_length=1, required=False)
+    force_scrape = serializers.BooleanField(required=False, default=False)
